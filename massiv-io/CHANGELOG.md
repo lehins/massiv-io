@@ -1,10 +1,11 @@
 # 0.2.1
 
+* Move the package into it's own repository: [lehins/massiv-io](https://github.com/lehins/massiv-io)
 * Addition of instances for `GIF` sequences in `RGB` with `Alpha` and instanced with
   `GifDisposalMethod`
 * Addition of conversion functions: `demoteLumaImage`, `promoteLumaImage`,
   `demoteLumaAlphaImage`, `promoteLumaAlphaImage`
-* Instnces for reading and writing images in Luma: `Y'` and `Y'A`
+* Instances for reading and writing images in Luma: `Y'` and `Y'A`
 
 # 0.2.0
 

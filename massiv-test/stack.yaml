@@ -1,7 +1,0 @@
-resolver: lts-14.4
-packages:
-- '.'
-extra-deps:
-- '../massiv'
-flags: {}
-extra-package-dbs: []

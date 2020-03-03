@@ -1,8 +1,6 @@
 resolver: lts-15.1
 packages:
-- 'massiv/'
 - 'massiv-io/'
-- 'massiv-test/'
 flags: {}
 extra-package-dbs: []
 extra-deps:
