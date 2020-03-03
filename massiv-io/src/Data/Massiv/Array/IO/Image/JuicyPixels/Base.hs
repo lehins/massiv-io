@@ -71,7 +71,6 @@ import Control.Exception (assert)
 import Control.Monad (msum, unless)
 import Data.Massiv.Array as A
 import Data.Massiv.Array.IO.Base
-import Data.Massiv.Array.Manifest.Vector
 import Data.Typeable
 import qualified Data.Vector.Storable as V
 import Foreign.Storable (Storable(sizeOf))
@@ -641,7 +640,8 @@ fromJPImageUnsafeM (JP.Image n m !v) = do
       , show numberOfComponentsFromSize
       ]
   assert (n * m * numComponentsPerPixel == V.length v) $
-    fromVectorM Par (Sz (m :. n)) $ V.unsafeCast v
+    unsafeFromStorableVectorM (Sz (m :. n)) v
+
 
 -- Conversion to sRGB color space based color models
 

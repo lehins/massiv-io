@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -43,19 +44,22 @@ module Data.Massiv.Array.IO.Base
   , fromMaybeDecodeM
   , fromMaybeDecode
   , convertEither
+  , unsafeFromStorableVectorM
   , MonadThrow(..)
   ) where
 
-import Unsafe.Coerce
 import Control.Exception (Exception, throw)
 import Control.Monad.Catch (MonadThrow(..))
 import qualified Data.ByteString as B (ByteString)
 import qualified Data.ByteString.Lazy as BL (ByteString)
 import Data.Default.Class (Default(..))
 import Data.Massiv.Array as A
+import Data.Massiv.Array.Manifest.Vector
 import Data.Typeable
+import qualified Data.Vector.Storable as V
 import Graphics.Pixel as CM
 import Graphics.Pixel.ColorSpace
+import Unsafe.Coerce
 
 type Image r cs e = Array r Ix2 (Pixel cs e)
 
@@ -302,3 +306,16 @@ demoteLumaAlphaImage = unsafeCoerce
 promoteLumaAlphaImage :: Array S Ix2 (Pixel (Alpha CM.Y) e) -> Array S Ix2 (Pixel (Alpha Y') e)
 promoteLumaAlphaImage = unsafeCoerce
 
+
+
+unsafeFromStorableVectorM ::
+     (MonadThrow m, Index ix, Storable a, Storable b)
+  => Sz ix
+  -> V.Vector a
+  -> m (Array S ix b)
+unsafeFromStorableVectorM sz v =
+#if MIN_VERSION_massiv(0,5,0)
+    resizeM sz $ fromStorableVector Par $ V.unsafeCast v
+#else
+    fromVectorM Par sz $ V.unsafeCast v
+#endif

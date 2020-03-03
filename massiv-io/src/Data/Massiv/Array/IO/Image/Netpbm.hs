@@ -37,7 +37,6 @@ import Data.Bifunctor (first)
 import qualified Data.ByteString as B (ByteString)
 import Data.Massiv.Array as M
 import Data.Massiv.Array.IO.Base
-import Data.Massiv.Array.Manifest.Vector
 import Data.Typeable
 import qualified Data.Vector.Storable as V
 import Foreign.Storable (Storable)
@@ -162,8 +161,7 @@ fromNetpbmImageUnsafe
   => Int -> Int -> V.Vector a -> Maybe (Image S cs e)
 fromNetpbmImageUnsafe m n v = do
   guard (n * m == V.length v)
-  fromVectorM Par (Sz (m :. n)) $ V.unsafeCast v
-
+  unsafeFromStorableVectorM (Sz (m :. n)) v
 
 
 showNetpbmCS :: Netpbm.PPM -> String
