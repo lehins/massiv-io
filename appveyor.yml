@@ -10,20 +10,26 @@ environment:
     STACK_WORK: ".w"
     WORK_DIR: "c:\\m"
   matrix:
-  - ARGS: "--resolver lts-12.26 --stack-yaml stack-extra-deps.yaml"
-  - ARGS: "--resolver lts-13.30 --stack-yaml stack-extra-deps.yaml"
-  - ARGS: "--resolver lts-14.27 --stack-yaml stack-extra-deps.yaml"
-  - ARGS: "--resolver lts-15"
-  - ARGS: "--resolver nightly"
+  - RESOLVER: "lts-12.26"
+    STACK_YAML: "stack-extra-deps.yaml"
+  - RESOLVER: "lts-13.30"
+    STACK_YAML: "stack-extra-deps.yaml"
+  - RESOLVER: "lts-14.27"
+    STACK_YAML: "stack-extra-deps.yaml"
+  - RESOLVER: "lts-15"
+    STACK_YAML: "stack-extra-deps.yaml"
+  - RESOLVER: "nightly"
 matrix:
   allow_failures:
-    - ARGS: "--resolver nightly"
+    - RESOLVER: "nightly"
 
 init:
   - SET WORK_DIR_NO_PR=%WORK_DIR%\%APPVEYOR_REPO_BRANCH%
   - SET STACK_ROOT_NO_PR=%STACK_ROOT%\%APPVEYOR_REPO_BRANCH%
   - SET WORK_DIR=%WORK_DIR%\%APPVEYOR_PULL_REQUEST_NUMBER%\%APPVEYOR_REPO_BRANCH%\
   - SET STACK_ROOT=%STACK_ROOT%\%APPVEYOR_PULL_REQUEST_NUMBER%\%APPVEYOR_REPO_BRANCH%\
+  - SET ARGS="--resolver %RESOLVER%"
+  - SET BUILD_ARGS="-j 2 --no-terminal --bench --no-run-benchmarks --haddock --no-haddock-deps"
 
 cache:
 - "%STACK_ROOT_NO_PR%"
@@ -31,6 +37,8 @@ cache:
 - "%LOCALAPPDATA%\\Programs\\stack"
 
 before_test:
+- curl -s -L https://gist.githubusercontent.com/lehins/fd36a8cc8bf853173437b17f6b6426ad/raw/d127fe35bc6dc0b8fa69767a4ec13c1bfffe4fa7/git-modtime.hs -o git-modtime.hs
+- stack script --resolver %RESOLVER% git-modtime.hs
 # Avoid long paths not to each MAX_PATH of 260 chars
 - xcopy /q /s /e /r /k /i /v /h /y C:\projects\massiv-io "%WORK_DIR%"
 - cd "%WORK_DIR%"
@@ -48,16 +56,8 @@ before_test:
 test_script:
   - cd "%WORK_DIR%"
   - stack %ARGS% --verbosity warn setup --no-reinstall > nul
-  - stack %ARGS% test massiv-io:tests
-      -j 2
-      --no-terminal
-      --haddock
-      --no-haddock-deps
-  - stack %ARGS% test massiv-io:doctests
-      -j 2
-      --no-terminal
-      --haddock
-      --no-haddock-deps
+  - stack %ARGS% test massiv-io:tests %BUILD_ARGS%
+  - stack %ARGS% test massiv-io:doctests %BUILD_ARGS%
 
 
 notifications:
