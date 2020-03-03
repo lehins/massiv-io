@@ -139,10 +139,8 @@ before_install:
 - export PATH=/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$HOME/.local/bin:/opt/alex/$ALEXVER/bin:/opt/happy/$HAPPYVER/bin:$HOME/.cabal/bin:$PATH
 - mkdir -p ~/.local/bin
 - |
-  # restore file modification times, so only changed modules get rebuilt
-  for f in $(git ls-tree -r -t --full-name --name-only HEAD) ; do
-    touch -d $(git log --pretty=format:%cI -1 HEAD -- "$f") "$f";
-  done
+  # script for restoring file modification times, so only changed modules get rebuilt
+  travis_retry curl -s -L https://gist.githubusercontent.com/lehins/fd36a8cc8bf853173437b17f6b6426ad/raw/d127fe35bc6dc0b8fa69767a4ec13c1bfffe4fa7/git-modtime.hs > git-modtime.hs
 
   case "$BUILD" in
     stack)
@@ -183,6 +181,7 @@ script:
   set -ex
   case "$BUILD" in
     stack)
+      stack script --resolver $(stack query compiler actual) git-modtime.hs
       BUILD_ARGS="--bench --no-run-benchmarks --haddock --no-haddock-deps"
       if [ -n "${COVERALLS_STACK_YAML}" ] && [ -n "${COVERALLS_REPO_TOKEN}" ]; then
          stack --stack-yaml $COVERALLS_STACK_YAML test --no-run-tests --coverage $BUILD_ARGS
