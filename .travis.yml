@@ -186,7 +186,6 @@ script:
       BUILD_ARGS="--bench --no-run-benchmarks --haddock --no-haddock-deps"
       if [ -n "${COVERALLS_STACK_YAML}" ] && [ -n "${COVERALLS_REPO_TOKEN}" ]; then
          export STACK_YAML="$COVERALLS_STACK_YAML"
-         stack $ARGS test --no-run-tests --coverage $BUILD_ARGS
          stack $ARGS test massiv-io:tests --coverage $BUILD_ARGS
          stack $ARGS hpc report --all
          travis_retry curl -L https://github.com/lehins/stack-hpc-coveralls/releases/download/0.0.5.0/shc.tar.gz | tar xz shc

@@ -1,5 +1,5 @@
 version: 1.0.{build}
-image: Visual Studio 2015
+image: Visual Studio 2019
 
 build: off
 
@@ -54,8 +54,8 @@ before_test:
 
 test_script:
   - cd "%WORK_DIR%"
-  - stack %ARGS% test massiv-io:tests %BUILD_ARGS%
-  - stack %ARGS% test massiv-io:doctests %BUILD_ARGS%
+  - stack "%ARGS%" test massiv-io:tests "%BUILD_ARGS%"
+  - stack "%ARGS%" test massiv-io:doctests "%BUILD_ARGS%"
 
 
 notifications:
