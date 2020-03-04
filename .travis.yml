@@ -140,7 +140,7 @@ before_install:
 - mkdir -p ~/.local/bin
 - |
   # script for restoring file modification times, so only changed modules get rebuilt
-  travis_retry curl -s -L https://gist.githubusercontent.com/lehins/fd36a8cc8bf853173437b17f6b6426ad/raw/d127fe35bc6dc0b8fa69767a4ec13c1bfffe4fa7/git-modtime.hs -o git-modtime.hs
+  travis_retry curl -s -L https://gist.githubusercontent.com/lehins/fd36a8cc8bf853173437b17f6b6426ad/raw/d9ddb32cac2f0dc6800be4fa54d450f0dcda6c60/git-modtime.hs -o git-modtime.hs
 
   case "$BUILD" in
     stack)

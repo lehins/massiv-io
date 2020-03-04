@@ -41,7 +41,7 @@ before_test:
 - curl -sSkL https://www.stackage.org/stack/windows-x86_64 -o stack.zip
 - 7z x stack.zip stack.exe -aoa
 # Restore source files modification time ti commit time to avoid recompilation.
-- curl -s -L https://gist.githubusercontent.com/lehins/fd36a8cc8bf853173437b17f6b6426ad/raw/d127fe35bc6dc0b8fa69767a4ec13c1bfffe4fa7/git-modtime.hs -o git-modtime.hs
+- curl -s -L https://gist.githubusercontent.com/lehins/fd36a8cc8bf853173437b17f6b6426ad/raw/d9ddb32cac2f0dc6800be4fa54d450f0dcda6c60/git-modtime.hs -o git-modtime.hs
 - stack script --resolver %RESOLVER% git-modtime.hs
 # Avoid long paths not to each MAX_PATH of 260 chars
 - xcopy /q /s /e /r /k /i /v /h /y C:\projects\massiv-io "%WORK_DIR%"
