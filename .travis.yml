@@ -100,13 +100,13 @@ matrix:
       apt:
         packages: [libgmp-dev]
 
-  - env: BUILD=stack RESOLVER="lts-13.30" COVERALLS_STACK_YAML="stack-extra-deps.yaml"
+  - env: BUILD=stack RESOLVER="lts-13.30" STACK_YAML="stack-extra-deps.yaml"
     compiler: ": #stack GHC-8.6.5 (lts-13.30)"
     addons:
       apt:
         packages: [libgmp-dev]
 
-  - env: BUILD=stack RESOLVER="lts-14.27" STACK_YAML="stack-extra-deps.yaml"
+  - env: BUILD=stack RESOLVER="lts-14.27" COVERALLS_STACK_YAML="stack-extra-deps.yaml"
     compiler: ": #stack GHC-8.6.5 (lts-14.27)"
     addons:
       apt:
@@ -185,8 +185,8 @@ script:
       ARGS="--resolver $RESOLVER"
       BUILD_ARGS="--bench --no-run-benchmarks --haddock --no-haddock-deps"
       if [ -n "${COVERALLS_STACK_YAML}" ] && [ -n "${COVERALLS_REPO_TOKEN}" ]; then
-         export STACK_YAML="$COVERALLS_STACK_YAML"
-         stack $ARGS test massiv-io:tests --coverage $BUILD_ARGS
+         #export STACK_YAML="$COVERALLS_STACK_YAML"
+         stack $ARGS --stack-yaml="$COVERALLS_STACK_YAML" test massiv-io:tests --coverage $BUILD_ARGS
          stack $ARGS hpc report --all
          travis_retry curl -L https://github.com/lehins/stack-hpc-coveralls/releases/download/0.0.5.0/shc.tar.gz | tar xz shc
          STACK_YAML="$COVERALLS_STACK_YAML" ./shc --repo-token=$COVERALLS_REPO_TOKEN combined custom
