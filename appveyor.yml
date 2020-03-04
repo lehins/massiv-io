@@ -17,7 +17,6 @@ environment:
   - RESOLVER: "lts-14.27"
     STACK_YAML: "stack-extra-deps.yaml"
   - RESOLVER: "lts-15"
-    STACK_YAML: "stack-extra-deps.yaml"
   - RESOLVER: "nightly"
 matrix:
   allow_failures:
