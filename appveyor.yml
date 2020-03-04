@@ -54,7 +54,6 @@ before_test:
 
 test_script:
   - cd "%WORK_DIR%"
-  - stack %ARGS% --verbosity warn setup --no-reinstall > nul
   - stack %ARGS% test massiv-io:tests %BUILD_ARGS%
   - stack %ARGS% test massiv-io:doctests %BUILD_ARGS%
 
