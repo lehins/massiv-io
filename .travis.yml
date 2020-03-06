@@ -63,17 +63,17 @@ matrix:
   # The Stack builds. We can pass in arbitrary Stack arguments via the ARGS
   # variable, such as using --stack-yaml to point to a different file.
 
-  - env: BUILD=stack RESOLVER="lts-12.26" STACK_YAML="stack-extra-deps.yaml"
-    compiler: ": #stack GHC-8.4.4 (lts-12.26)"
-    os: osx
+  # - env: BUILD=stack RESOLVER="lts-12.26" STACK_YAML="stack-extra-deps.yaml"
+  #   compiler: ": #stack GHC-8.4.4 (lts-12.26)"
+  #   os: osx
 
-  - env: BUILD=stack RESOLVER="lts-14.27" STACK_YAML="stack-extra-deps.yaml"
-    compiler: ": #stack GHC-8.6.5 (lts-14.27)"
-    os: osx
+  # - env: BUILD=stack RESOLVER="lts-14.27" STACK_YAML="stack-extra-deps.yaml"
+  #   compiler: ": #stack GHC-8.6.5 (lts-14.27)"
+  #   os: osx
 
-  - env: BUILD=stack RESOLVER="lts-15"
-    compiler: ": #stack GHC-8.8.2 (lts-15)"
-    os: osx
+  # - env: BUILD=stack RESOLVER="lts-15"
+  #   compiler: ": #stack GHC-8.8.2 (lts-15)"
+  #   os: osx
 
 
   - env: BUILD=stack RESOLVER="lts-12.14" STACK_YAML="stack-extra-deps.yaml"
