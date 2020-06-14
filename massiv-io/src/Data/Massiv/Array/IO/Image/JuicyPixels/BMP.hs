@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -82,10 +83,10 @@ instance Writable BMP (Image S Y' Word8) where
 instance Writable BMP (Image S (Y D65) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable BMP (Image S SRGB Word8) where
+instance Writable BMP (Image S (SRGB 'NonLinear) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable BMP (Image S (Alpha SRGB) Word8) where
+instance Writable BMP (Image S (Alpha (SRGB 'NonLinear)) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
 instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel cs e)) =>
@@ -108,10 +109,10 @@ instance Readable BMP (Image S Y' Word8) where
 instance Readable BMP (Image S (Y D65) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable BMP (Image S SRGB Word8) where
+instance Readable BMP (Image S (SRGB 'NonLinear) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable BMP (Image S (Alpha SRGB) Word8) where
+instance Readable BMP (Image S (Alpha (SRGB 'NonLinear)) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
 -- | Decode a Bitmap Image

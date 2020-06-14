@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
@@ -89,7 +90,7 @@ instance Writable GIF (Image S Y' Word8) where
 instance Writable GIF (Image S (Y D65) Word8) where
   encodeM GIF opts = encodeM GIF opts . toImageBaseModel
 
-instance Writable GIF (Image S SRGB Word8) where
+instance Writable GIF (Image S (SRGB 'NonLinear) Word8) where
   encodeM GIF opts = encodeM GIF opts . toImageBaseModel
 
 encodePalettizedRGB ::
@@ -114,11 +115,11 @@ instance Readable GIF (Image S (Alpha CM.RGB) Word8) where
   decodeM = decodeGIF
   decodeWithMetadataM = decodeWithMetadataGIF
 
-instance Readable GIF (Image S SRGB Word8) where
+instance Readable GIF (Image S (SRGB 'NonLinear) Word8) where
   decodeM f = fmap fromImageBaseModel . decodeM f
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable GIF (Image S (Alpha SRGB) Word8) where
+instance Readable GIF (Image S (Alpha (SRGB 'NonLinear)) Word8) where
   decodeM f = fmap fromImageBaseModel . decodeM f
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
@@ -172,10 +173,10 @@ encodeGIF f opts img =
           | Just Refl <- (eqT :: Maybe (e :~: Word8))
           , Just Refl <- (eqT :: Maybe (cs :~: CM.RGB)) -> encodePalettizedRGB opts img
           | Just Refl <- (eqT :: Maybe (e :~: Word8))
-          , Just Refl <- (eqT :: Maybe (cs :~: SRGB)) ->
+          , Just Refl <- (eqT :: Maybe (cs :~: (SRGB 'NonLinear))) ->
             encodePalettizedRGB opts $ toImageBaseModel img
           | Just Refl <- (eqT :: Maybe (e :~: Word8))
-          , Just Refl <- (eqT :: Maybe (cs :~: AdobeRGB)) ->
+          , Just Refl <- (eqT :: Maybe (cs :~: (AdobeRGB 'NonLinear))) ->
             encodePalettizedRGB opts $ toImageBaseModel img
         Nothing -> fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) Nothing
 
@@ -220,11 +221,11 @@ instance Readable (Sequence GIF) [Image S (Alpha CM.RGB) Word8] where
   decodeM = decodeSequenceGIF
   decodeWithMetadataM = decodeSequenceWithMetadataGIF
 
-instance Readable (Sequence GIF) [Image S SRGB Word8] where
+instance Readable (Sequence GIF) [Image S (SRGB 'NonLinear) Word8] where
   decodeM f = fmap (fmap fromImageBaseModel) . decodeM f
   decodeWithMetadataM f = fmap (first (fmap fromImageBaseModel)) . decodeWithMetadataM f
 
-instance Readable (Sequence GIF) [Image S (Alpha SRGB) Word8] where
+instance Readable (Sequence GIF) [Image S (Alpha (SRGB 'NonLinear)) Word8] where
   decodeM f = fmap (fmap fromImageBaseModel) . decodeM f
   decodeWithMetadataM f = fmap (first (fmap fromImageBaseModel)) . decodeWithMetadataM f
 
@@ -357,20 +358,20 @@ instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S Y' Word8)) w
 instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S (Y D65) Word8)) where
   encodeM f opts = encodeM f opts . fmap (fmap toImageBaseModel)
 
-instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S SRGB Word8)) where
+instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S (SRGB 'NonLinear) Word8)) where
   encodeM f opts = encodeM f opts . fmap (fmap toImageBaseModel)
 
-instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S (Alpha SRGB) Word8)) where
+instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S (Alpha (SRGB 'NonLinear)) Word8)) where
   encodeM f opts = encodeM f opts . fmap (fmap toImageBaseModel)
 
 instance Writable (Sequence GIF) (NE.NonEmpty ( JP.GifDelay
                                               , JP.GifDisposalMethod
-                                              , Image S SRGB Word8)) where
+                                              , Image S (SRGB 'NonLinear) Word8)) where
   encodeM f opts = encodeM f opts . fmap (\(dl, dp, i) -> (dl, dp, toImageBaseModel i))
 
 instance Writable (Sequence GIF) (NE.NonEmpty ( JP.GifDelay
                                               , JP.GifDisposalMethod
-                                              , Image S (Alpha SRGB) Word8)) where
+                                              , Image S (Alpha (SRGB 'NonLinear)) Word8)) where
   encodeM f opts = encodeM f opts . fmap (\(dl, dp, i) -> (dl, dp, toImageBaseModel i))
 
 
@@ -378,4 +379,4 @@ instance (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
          Writable (Auto (Sequence GIF)) (NE.NonEmpty (JP.GifDelay, Image r cs e)) where
   encodeM (Auto f) opts =
     encodeM f opts .
-    fmap (fmap (computeAs S . (convertImage :: Image r cs e -> Image D SRGB Word8)))
+    fmap (fmap (computeAs S . (convertImage :: Image r cs e -> Image D (SRGB 'NonLinear) Word8)))

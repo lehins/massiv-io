@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -102,16 +103,16 @@ instance Writable PNG (Image S (Alpha (Y D65)) Word8) where
 instance Writable PNG (Image S (Alpha (Y D65)) Word16) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable PNG (Image S SRGB Word8) where
+instance Writable PNG (Image S (SRGB 'NonLinear) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable PNG (Image S SRGB Word16) where
+instance Writable PNG (Image S (SRGB 'NonLinear) Word16) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable PNG (Image S (Alpha SRGB) Word8) where
+instance Writable PNG (Image S (Alpha (SRGB 'NonLinear)) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable PNG (Image S (Alpha SRGB) Word16) where
+instance Writable PNG (Image S (Alpha (SRGB 'NonLinear)) Word16) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
 instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel cs e)) =>
@@ -168,16 +169,16 @@ instance Readable PNG (Image S (Alpha (Y D65)) Word8) where
 instance Readable PNG (Image S (Alpha (Y D65)) Word16) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataPNG f
 
-instance Readable PNG (Image S SRGB Word8) where
+instance Readable PNG (Image S (SRGB 'NonLinear) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataPNG f
 
-instance Readable PNG (Image S SRGB Word16) where
+instance Readable PNG (Image S (SRGB 'NonLinear) Word16) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataPNG f
 
-instance Readable PNG (Image S (Alpha SRGB) Word8) where
+instance Readable PNG (Image S (Alpha (SRGB 'NonLinear)) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataPNG f
 
-instance Readable PNG (Image S (Alpha SRGB) Word16) where
+instance Readable PNG (Image S (Alpha (SRGB 'NonLinear)) Word16) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataPNG f
 
 -- | Decode a Png Image

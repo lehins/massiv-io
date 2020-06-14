@@ -98,9 +98,10 @@ data ExternalViewer =
 -- then you can read it in manually into a matching color model and then cast into a color
 -- space you know it is encoded in:
 --
+-- >>> :set -XDataKinds
 -- >>> import qualified Graphics.ColorModel as CM
 -- >>> frogRGB <- readArray JPG "files/_frog.jpg" :: IO (Image S CM.RGB Word8)
--- >>> let frogAdobeRGB = (fromImageBaseModel frogRGB :: Image S AdobeRGB Word8)
+-- >>> let frogAdobeRGB = (fromImageBaseModel frogRGB :: Image S (AdobeRGB 'NonLinear) Word8)
 --
 -- @since 0.1.0
 readArray :: (Readable f arr, MonadIO m) =>
@@ -129,8 +130,9 @@ writeLazyAtomically filepath bss =
 
 -- | Write an array to disk.
 --
--- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (YCbCr SRGB) Word8)
--- >>> frogAdobeRGB = convertImage frogYCbCr :: Image D AdobeRGB Word8
+-- >>> :set -XDataKinds
+-- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (YCbCr (SRGB 'NonLinear)) Word8)
+-- >>> frogAdobeRGB = convertImage frogYCbCr :: Image D (AdobeRGB 'NonLinear) Word8
 -- >>> writeArray JPG def "files/_frog.jpg" $ toImageBaseModel $ computeAs S frogAdobeRGB
 --
 -- /Note/ - On UNIX operating systems writing will happen with guarantees of atomicity and
@@ -158,7 +160,8 @@ writeArray format opts filepath arr =
 --
 -- Resulting image will be read as specified by the type signature:
 --
--- >>> frog <- readImage "files/frog.jpg" :: IO (Image S (YCbCr SRGB) Word8)
+-- >>> :set -XDataKinds
+-- >>> frog <- readImage "files/frog.jpg" :: IO (Image S (YCbCr (SRGB 'NonLinear)) Word8)
 -- >>> size frog
 -- Sz (200 :. 320)
 --
@@ -169,19 +172,19 @@ writeArray format opts filepath arr =
 -- In case when the result image type does not match the color space or precision of the
 -- actual image file, `ConvertError` will be thrown.
 --
--- >>> frog <- readImage "files/frog.jpg" :: IO (Image S SRGB Word8)
--- *** Exception: ConvertError "Cannot decode JPG image <Image S YCbCr Word8> as <Image S SRGB Word8>"
+-- >>> frog <- readImage "files/frog.jpg" :: IO (Image S (SRGB 'NonLinear) Word8)
+-- *** Exception: ConvertError "Cannot decode JPG image <Image S YCbCr Word8> as <Image S SRGB 'NonLinear Word8>"
 --
 -- Whenever image is not in the color space or precision that we need, either use
 -- `readImageAuto` or manually convert to the desired one by using the appropriate
 -- conversion functions:
 --
--- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (YCbCr SRGB) Word8)
--- >>> let frogSRGB = convertImage frogYCbCr :: Image D SRGB Word8
+-- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (YCbCr (SRGB 'NonLinear)) Word8)
+-- >>> let frogSRGB = convertImage frogYCbCr :: Image D (SRGB 'NonLinear) Word8
 --
 -- A simpler approach to achieve the same effect would be to use `readImageAuto`:
 --
--- >>> frogSRGB' <- readImageAuto "files/frog.jpg" :: IO (Image S SRGB Word8)
+-- >>> frogSRGB' <- readImageAuto "files/frog.jpg" :: IO (Image S (SRGB 'NonLinear) Word8)
 -- >>> compute frogSRGB == frogSRGB'
 -- True
 --
@@ -198,7 +201,7 @@ readImage path = liftIO (B.readFile path >>= decodeImageM imageReadFormats path)
 -- and precision adjustment in order to match the result image type. Very useful whenever
 -- image format isn't known ahead of time.
 --
--- >>> frogCMYK <- readImageAuto "files/frog.jpg" :: IO (Image S (CMYK SRGB) Double)
+-- >>> frogCMYK <- readImageAuto "files/frog.jpg" :: IO (Image S (CMYK (SRGB 'NonLinear)) Double)
 -- >>> size frogCMYK
 -- Sz (200 :. 320)
 --
@@ -233,8 +236,8 @@ writeImage path img = liftIO (encodeImageM imageWriteFormats path img >>= writeL
 -- on then it will be encoded as such. For example writing a TIF file in CMYK color model,
 -- 8bit precision and an sRGB color space:
 --
--- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (YCbCr SRGB) Word8)
--- >>> writeImageAuto "files/frog.tiff" (convertImage frogYCbCr :: Image D (CMYK AdobeRGB) Word8)
+-- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (YCbCr (SRGB 'NonLinear)) Word8)
+-- >>> writeImageAuto "files/frog.tiff" (convertImage frogYCbCr :: Image D (CMYK (AdobeRGB 'NonLinear)) Word8)
 --
 -- Regardless that the color space supplied was `AdobeRGB` auto conversion will ensure it
 -- is stored as `SRGB`, except in `CM.CMYK` color model, since `TIF` file format supports it.

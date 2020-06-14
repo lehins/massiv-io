@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -73,7 +74,7 @@ getHdrEncoder HdrOptions {hdrUseLightRLE}
 instance Writable HDR (Image S CM.RGB Float) where
   encodeM HDR opts = pure . getHdrEncoder opts . toJPImageRGBF
 
-instance Writable HDR (Image S SRGB Float) where
+instance Writable HDR (Image S (SRGB 'NonLinear) Float) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
 instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel cs e)) =>
@@ -84,7 +85,7 @@ instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel 
 instance Readable HDR (Image S CM.RGB Float) where
   decodeWithMetadataM = decodeWithMetadataHDR
 
-instance Readable HDR (Image S SRGB Float) where
+instance Readable HDR (Image S (SRGB 'NonLinear) Float) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
 -- | Decode a HDR Image
@@ -140,6 +141,6 @@ encodeAutoHDR ::
   -> BL.ByteString
 encodeAutoHDR _ opts = toHdr (toPixelBaseModel . toSRGBF)
   where
-    toSRGBF = convertPixel :: Pixel cs e -> Pixel SRGB Float
+    toSRGBF = convertPixel :: Pixel cs e -> Pixel (SRGB 'NonLinear) Float
     toHdr :: Source r Ix2 a => (a -> Pixel CM.RGB Float) -> Array r Ix2 a -> BL.ByteString
     toHdr adjustPixel = getHdrEncoder opts . toJPImageRGBF . A.map adjustPixel

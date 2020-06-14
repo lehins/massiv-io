@@ -1,8 +1,9 @@
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
 module Test.Massiv.Array.IO.Image.Common where
 
 import Data.List.NonEmpty as NE (NonEmpty(..))
@@ -11,7 +12,7 @@ import Data.Massiv.Array.IO hiding (showsType)
 import qualified Data.ByteString.Lazy as BL
 import Test.Massiv.Core
 import System.Random
-import Test.Hspec.QuickCheck
+
 
 elevatorGen :: (Random e, Elevator e) => Gen e
 elevatorGen = choose (minValue, maxValue)
@@ -24,13 +25,13 @@ instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Y i) e) where
   arbitrary = PixelY <$> elevatorGen
 instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Alpha (Y i)) e) where
   arbitrary = PixelYA <$> elevatorGen <*> elevatorGen
-instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel SRGB e) where
+instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (SRGB l) e) where
   arbitrary = PixelRGB <$> elevatorGen <*> elevatorGen <*> elevatorGen
-instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Alpha SRGB) e) where
+instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Alpha (SRGB l)) e) where
   arbitrary = PixelRGBA <$> elevatorGen <*> elevatorGen <*> elevatorGen <*> elevatorGen
-instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel AdobeRGB e) where
+instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (AdobeRGB l) e) where
   arbitrary = PixelRGB <$> elevatorGen <*> elevatorGen <*> elevatorGen
-instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Alpha AdobeRGB) e) where
+instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Alpha (AdobeRGB l)) e) where
   arbitrary = PixelRGBA <$> elevatorGen <*> elevatorGen <*> elevatorGen <*> elevatorGen
 instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (YCbCr cs) e) where
   arbitrary = PixelYCbCr <$> elevatorGen <*> elevatorGen <*> elevatorGen

@@ -1,3 +1,7 @@
+# 0.2.2
+
+* Support for `Color-0.2`, in particular addition of `Linearity` kind to `RGB` color spaces.
+
 # 0.2.1
 
 * Move the package into it's own repository: [lehins/massiv-io](https://github.com/lehins/massiv-io)

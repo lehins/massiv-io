@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -70,10 +71,10 @@ instance Writable TGA (Image S Y' Word8) where
 instance Writable TGA (Image S (Y D65) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable TGA (Image S SRGB Word8) where
+instance Writable TGA (Image S (SRGB 'NonLinear) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable TGA (Image S (Alpha SRGB) Word8) where
+instance Writable TGA (Image S (Alpha (SRGB 'NonLinear)) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
 
@@ -98,10 +99,10 @@ instance Readable TGA (Image S Y' Word8) where
 instance Readable TGA (Image S (Y D65) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable TGA (Image S SRGB Word8) where
+instance Readable TGA (Image S (SRGB 'NonLinear) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable TGA (Image S (Alpha SRGB) Word8) where
+instance Readable TGA (Image S (Alpha (SRGB 'NonLinear)) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
 -- | Decode a Tga Image

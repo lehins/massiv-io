@@ -1,4 +1,5 @@
 {-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
@@ -200,50 +201,50 @@ fromDynamicImageM jpDynImg =
     JP.ImageRGB8 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel SRGB Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel AdobeRGB Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (SRGB 'NonLinear) Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (AdobeRGB 'NonLinear) Word8))
         ]
     JP.ImageRGB16 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel SRGB Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel AdobeRGB Word16))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (SRGB 'NonLinear) Word16))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (AdobeRGB 'NonLinear) Word16))
         ]
     JP.ImageRGBF jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Float))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel SRGB Float))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel AdobeRGB Float))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (SRGB 'NonLinear) Float))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (AdobeRGB 'NonLinear) Float))
         ]
     JP.ImageRGBA8 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.RGB) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha SRGB) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha AdobeRGB) Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (SRGB 'NonLinear)) Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (AdobeRGB 'NonLinear)) Word8))
         ]
     JP.ImageRGBA16 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.RGB) Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha SRGB) Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha AdobeRGB) Word16))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (SRGB 'NonLinear)) Word16))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (AdobeRGB 'NonLinear)) Word16))
         ]
     JP.ImageYCbCr8 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.YCbCr Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (YCbCr SRGB) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (YCbCr AdobeRGB) Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (YCbCr (SRGB 'NonLinear)) Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (YCbCr (AdobeRGB 'NonLinear)) Word8))
         ]
     JP.ImageCMYK8 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.CMYK Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK SRGB) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK AdobeRGB) Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (SRGB 'NonLinear)) Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (AdobeRGB 'NonLinear)) Word8))
         ]
     JP.ImageCMYK16 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.CMYK Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK SRGB) Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK AdobeRGB) Word16))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (SRGB 'NonLinear)) Word16))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (AdobeRGB 'NonLinear)) Word16))
         ]
 
 fromDynamicImage ::
@@ -315,21 +316,26 @@ fromDynamicImageAuto jpDynImg =
     JP.ImageYA16 jimg ->
       compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (Alpha (Y D65)) Word16))
     JP.ImageRGB8 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S SRGB Word8))
+      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (SRGB 'NonLinear) Word8))
     JP.ImageRGB16 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S SRGB Word16))
+      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (SRGB 'NonLinear) Word16))
     JP.ImageRGBF jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S SRGB Float))
+      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (SRGB 'NonLinear) Float))
     JP.ImageRGBA8 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (Alpha SRGB) Word8))
+      compute . convertImage <$>
+      (fromJPImageUnsafeM jimg :: m (Image S (Alpha (SRGB 'NonLinear)) Word8))
     JP.ImageRGBA16 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (Alpha SRGB) Word16))
+      compute . convertImage <$>
+      (fromJPImageUnsafeM jimg :: m (Image S (Alpha (SRGB 'NonLinear)) Word16))
     JP.ImageYCbCr8 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (YCbCr SRGB) Word8))
+      compute . convertImage <$>
+      (fromJPImageUnsafeM jimg :: m (Image S (YCbCr (SRGB 'NonLinear)) Word8))
     JP.ImageCMYK8 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (CMYK SRGB) Word8))
+      compute . convertImage <$>
+      (fromJPImageUnsafeM jimg :: m (Image S (CMYK (SRGB 'NonLinear)) Word8))
     JP.ImageCMYK16 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (CMYK SRGB) Word16))
+      compute . convertImage <$>
+      (fromJPImageUnsafeM jimg :: m (Image S (CMYK (SRGB 'NonLinear)) Word16))
 
 
 
@@ -485,8 +491,8 @@ maybeJPImageRGB8 ::
 maybeJPImageRGB8 img =
   msum
     [ (\Refl -> toJPImageRGB8 img) <$> (eqT :: Maybe (cs :~: CM.RGB))
-    , (\Refl -> toJPImageRGB8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: SRGB))
-    , (\Refl -> toJPImageRGB8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: AdobeRGB))
+    , (\Refl -> toJPImageRGB8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: SRGB 'NonLinear))
+    , (\Refl -> toJPImageRGB8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: AdobeRGB 'NonLinear))
     ]
 {-# INLINE maybeJPImageRGB8 #-}
 
@@ -503,8 +509,8 @@ maybeJPImageRGB16 ::
 maybeJPImageRGB16 img =
   msum
     [ (\Refl -> toJPImageRGB16 img) <$> (eqT :: Maybe (cs :~: CM.RGB))
-    , (\Refl -> toJPImageRGB16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: SRGB))
-    , (\Refl -> toJPImageRGB16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: AdobeRGB))
+    , (\Refl -> toJPImageRGB16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: SRGB 'NonLinear))
+    , (\Refl -> toJPImageRGB16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: AdobeRGB 'NonLinear))
     ]
 {-# INLINE maybeJPImageRGB16 #-}
 
@@ -520,8 +526,8 @@ maybeJPImageRGBF ::
 maybeJPImageRGBF img =
   msum
     [ (\Refl -> toJPImageRGBF img) <$> (eqT :: Maybe (cs :~: CM.RGB))
-    , (\Refl -> toJPImageRGBF $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: SRGB))
-    , (\Refl -> toJPImageRGBF $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: AdobeRGB))
+    , (\Refl -> toJPImageRGBF $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: SRGB 'NonLinear))
+    , (\Refl -> toJPImageRGBF $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: AdobeRGB 'NonLinear))
     ]
 {-# INLINE maybeJPImageRGBF #-}
 
@@ -540,8 +546,9 @@ maybeJPImageRGBA8 ::
 maybeJPImageRGBA8 img =
   msum
     [ (\Refl -> toJPImageRGBA8 img) <$> (eqT :: Maybe (cs :~: CM.RGB))
-    , (\Refl -> toJPImageRGBA8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: SRGB))
-    , (\Refl -> toJPImageRGBA8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: AdobeRGB))
+    , (\Refl -> toJPImageRGBA8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: SRGB 'NonLinear))
+    , (\Refl -> toJPImageRGBA8 $ toImageBaseModel img) <$>
+      (eqT :: Maybe (cs :~: AdobeRGB 'NonLinear))
     ]
 {-# INLINE maybeJPImageRGBA8 #-}
 
@@ -560,8 +567,10 @@ maybeJPImageRGBA16 ::
 maybeJPImageRGBA16 img =
   msum
     [ (\Refl -> toJPImageRGBA16 img) <$> (eqT :: Maybe (cs :~: CM.RGB))
-    , (\Refl -> toJPImageRGBA16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: SRGB))
-    , (\Refl -> toJPImageRGBA16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: AdobeRGB))
+    , (\Refl -> toJPImageRGBA16 $ toImageBaseModel img) <$>
+      (eqT :: Maybe (cs :~: SRGB 'NonLinear))
+    , (\Refl -> toJPImageRGBA16 $ toImageBaseModel img) <$>
+      (eqT :: Maybe (cs :~: AdobeRGB 'NonLinear))
     ]
 {-# INLINE maybeJPImageRGBA16 #-}
 
@@ -578,8 +587,9 @@ maybeJPImageYCbCr8 ::
 maybeJPImageYCbCr8 img =
   msum
     [ (\Refl -> toJPImageYCbCr8 img) <$> (eqT :: Maybe (cs :~: CM.YCbCr))
-    , (\Refl -> toJPImageYCbCr8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: YCbCr SRGB))
-    --, (\Refl -> toJPImageYCbCr8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: YCbCr AdobeRGB))
+    , (\Refl -> toJPImageYCbCr8 $ toImageBaseModel img) <$>
+      (eqT :: Maybe (cs :~: YCbCr (SRGB 'NonLinear)))
+    --, (\Refl -> toJPImageYCbCr8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: YCbCr (AdobeRGB 'NonLinear)))
     ]
 {-# INLINE maybeJPImageYCbCr8 #-}
 
@@ -597,8 +607,10 @@ maybeJPImageCMYK8 ::
 maybeJPImageCMYK8 img =
   msum
     [ (\Refl -> toJPImageCMYK8 img) <$> (eqT :: Maybe (cs :~: CM.CMYK))
-    , (\Refl -> toJPImageCMYK8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: CMYK SRGB))
-    , (\Refl -> toJPImageCMYK8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: CMYK AdobeRGB))
+    , (\Refl -> toJPImageCMYK8 $ toImageBaseModel img) <$>
+      (eqT :: Maybe (cs :~: CMYK (SRGB 'NonLinear)))
+    , (\Refl -> toJPImageCMYK8 $ toImageBaseModel img) <$>
+      (eqT :: Maybe (cs :~: CMYK (AdobeRGB 'NonLinear)))
     ]
 {-# INLINE maybeJPImageCMYK8 #-}
 
@@ -616,8 +628,10 @@ maybeJPImageCMYK16 ::
 maybeJPImageCMYK16 img =
   msum
     [ (\Refl -> toJPImageCMYK16 img) <$> (eqT :: Maybe (cs :~: CM.CMYK))
-    , (\Refl -> toJPImageCMYK16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: CMYK SRGB))
-    , (\Refl -> toJPImageCMYK16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: CMYK AdobeRGB))
+    , (\Refl -> toJPImageCMYK16 $ toImageBaseModel img) <$>
+      (eqT :: Maybe (cs :~: CMYK (SRGB 'NonLinear)))
+    , (\Refl -> toJPImageCMYK16 $ toImageBaseModel img) <$>
+      (eqT :: Maybe (cs :~: CMYK (AdobeRGB 'NonLinear)))
     ]
 {-# INLINE maybeJPImageCMYK16 #-}
 
@@ -646,22 +660,22 @@ fromJPImageUnsafeM (JP.Image n m !v) = do
 -- Conversion to sRGB color space based color models
 
 toYCbCr8 :: forall cs i e . ColorSpace cs i e => Pixel cs e -> Pixel CM.YCbCr Word8
-toYCbCr8 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (YCbCr SRGB) Word8)
+toYCbCr8 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (YCbCr (SRGB 'NonLinear)) Word8)
 
 toCMYK8 :: forall cs i e . ColorSpace cs i e => Pixel cs e -> Pixel CM.CMYK Word8
-toCMYK8 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (CMYK SRGB) Word8)
+toCMYK8 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (CMYK (SRGB 'NonLinear)) Word8)
 
 toCMYK16 :: forall cs i e . ColorSpace cs i e => Pixel cs e -> Pixel CM.CMYK Word16
-toCMYK16 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (CMYK SRGB) Word16)
+toCMYK16 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (CMYK (SRGB 'NonLinear)) Word16)
 
 toSRGB8 :: forall cs i e . ColorSpace cs i e => Pixel cs e -> Pixel CM.RGB Word8
-toSRGB8 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel SRGB Word8)
+toSRGB8 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (SRGB 'NonLinear) Word8)
 
 toSRGB16 :: forall cs i e . ColorSpace cs i e => Pixel cs e -> Pixel CM.RGB Word16
-toSRGB16 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel SRGB Word16)
+toSRGB16 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (SRGB 'NonLinear) Word16)
 
 toSRGBA8 :: forall cs i e . ColorSpace cs i e => Pixel cs e -> Pixel (Alpha CM.RGB) Word8
-toSRGBA8 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (Alpha SRGB) Word8)
+toSRGBA8 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (Alpha (SRGB 'NonLinear)) Word8)
 
 toSRGBA16 :: forall cs i e . ColorSpace cs i e => Pixel cs e -> Pixel (Alpha CM.RGB) Word16
-toSRGBA16 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (Alpha SRGB) Word16)
+toSRGBA16 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (Alpha (SRGB 'NonLinear)) Word16)

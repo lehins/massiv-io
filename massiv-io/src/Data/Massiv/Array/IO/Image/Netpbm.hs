@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -225,9 +226,9 @@ instance Readable PPM (Image S CM.RGB Word16) where
   decodeWithMetadataM = decodeNetpbmImage
 
 
-instance Readable PPM (Image S SRGB Word8) where
+instance Readable PPM (Image S (SRGB 'NonLinear) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
-instance Readable PPM (Image S SRGB Word16) where
+instance Readable PPM (Image S (SRGB 'NonLinear) Word16) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
 
@@ -237,9 +238,9 @@ instance Readable (Sequence PPM) [Image S CM.RGB Word16] where
   decodeWithMetadataM = decodePPMs fromNetpbmImage
 
 
-instance Readable (Sequence PPM) [Image S SRGB Word8] where
+instance Readable (Sequence PPM) [Image S (SRGB 'NonLinear) Word8] where
   decodeWithMetadataM f = fmap (first (fmap fromImageBaseModel)) . decodeWithMetadataM f
-instance Readable (Sequence PPM) [Image S SRGB Word16] where
+instance Readable (Sequence PPM) [Image S (SRGB 'NonLinear) Word16] where
   decodeWithMetadataM f = fmap (first (fmap fromImageBaseModel)) . decodeWithMetadataM f
 
 
@@ -297,6 +298,8 @@ fromNetpbmImageAuto Netpbm.PPM {..} = do
     PgmPixelData16 v ->
       compute . convertImage <$> (fromNetpbmImageUnsafe m n v :: Maybe (Image S (Y D65) Word16))
     PpmPixelDataRGB8 v ->
-      compute . convertImage <$> (fromNetpbmImageUnsafe m n v :: Maybe (Image S SRGB Word8))
+      compute . convertImage <$>
+      (fromNetpbmImageUnsafe m n v :: Maybe (Image S (SRGB 'NonLinear) Word8))
     PpmPixelDataRGB16 v ->
-      compute . convertImage <$> (fromNetpbmImageUnsafe m n v :: Maybe (Image S SRGB Word16))
+      compute . convertImage <$>
+      (fromNetpbmImageUnsafe m n v :: Maybe (Image S (SRGB 'NonLinear) Word16))
