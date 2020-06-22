@@ -4,8 +4,4 @@ packages:
 flags: {}
 extra-package-dbs: []
 extra-deps:
-#- Color-0.2.0
-- github: lehins/Color
-  commit: 6a3932da974132a5ec87f7f97237e9e659f53e48
-  subdirs:
-    - Color
+- Color-0.2.0@sha256:94c43c4d8f943ba0642ee58a9b8a665b01a3ac2893c40a16ffdabaacb956c58f,8159

@@ -3,15 +3,9 @@ packages:
 - 'massiv-io/'
 flags: {}
 extra-deps:
-# - massiv-0.5.0.0@sha256:1f946b6a59f0bfd054f146ac40a9034ee4165881b188c8ab04a3ff12109a1799,4745
-# - massiv-test-0.1.3@sha256:6a233bca7a6bf7d9ae129a4b17b8bca1ec77a2130d3c0e95d718c63616f40289,3937
 - massiv-0.4.0.0
 - massiv-test-0.1.0
-#- Color-0.2.0
+- Color-0.2.0@sha256:94c43c4d8f943ba0642ee58a9b8a665b01a3ac2893c40a16ffdabaacb956c58f,8159
 - scheduler-1.4.2.1@sha256:26fb16ccf5f41ee9144f8c77a5228163968543ae5cc8242c761e69ff8f579e07,2863
 - JuicyPixels-3.3.5@sha256:5c67dc066d67f5045221a8202f701f4c77eab8220f44414c00fadcdc3e4f872b,3911
 - unliftio-0.2.12@sha256:b089fbc2ff2628a963c2c4b12143f2020874e3e5144ffd6c62b25639a0ca1483,3325
-- github: lehins/Color
-  commit: 6a3932da974132a5ec87f7f97237e9e659f53e48
-  subdirs:
-    - Color
