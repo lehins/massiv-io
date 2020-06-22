@@ -12,6 +12,7 @@ import Data.Massiv.Array.IO hiding (showsType)
 import qualified Data.ByteString.Lazy as BL
 import Test.Massiv.Core
 import System.Random
+import Test.Hspec.QuickCheck
 
 
 elevatorGen :: (Random e, Elevator e) => Gen e
