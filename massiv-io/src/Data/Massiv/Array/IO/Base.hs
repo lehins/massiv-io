@@ -53,7 +53,7 @@ import Control.Monad.Catch (MonadThrow(..))
 import qualified Data.ByteString as B (ByteString)
 import qualified Data.ByteString.Lazy as BL (ByteString)
 import Data.Default.Class (Default(..))
-import Data.Massiv.Array as A
+import qualified Data.Massiv.Array as A
 import Data.Massiv.Array.Manifest.Vector
 import Data.Typeable
 import qualified Data.Vector.Storable as V
@@ -61,7 +61,7 @@ import Graphics.Pixel as CM
 import Graphics.Pixel.ColorSpace
 import Unsafe.Coerce
 
-type Image r cs e = Array r Ix2 (Pixel cs e)
+type Image r cs e = A.Array r A.Ix2 (Pixel cs e)
 
 -- | Conversion error, which is thrown when there is a mismatch between the
 -- expected array type and the one supported by the file format. It is also
@@ -257,16 +257,16 @@ decodeError = either (throwM . DecodeError) pure
 --
 -- @since 0.2.0
 convertImage ::
-     (Source r' Ix2 (Pixel cs' e'), ColorSpace cs' i' e', ColorSpace cs i e)
+     (A.Source r' A.Ix2 (Pixel cs' e'), ColorSpace cs' i' e', ColorSpace cs i e)
   => Image r' cs' e'
-  -> Image D cs e
+  -> Image A.D cs e
 convertImage = A.map convertPixel
 
 -- | Cast an array. This is theoretically unsafe operation, but for all currently
 -- available `ColorSpace` instances this function is perfectly safe.
 --
 -- @since 0.2.0
-toImageBaseModel :: Array S Ix2 (Pixel cs e) -> Array S Ix2 (Pixel (BaseModel cs) e)
+toImageBaseModel :: A.Array A.S A.Ix2 (Pixel cs e) -> A.Array A.S A.Ix2 (Pixel (BaseModel cs) e)
 toImageBaseModel = unsafeCoerce
 
 
@@ -274,7 +274,7 @@ toImageBaseModel = unsafeCoerce
 -- available `ColorSpace` instances this function is perfectly safe.
 --
 -- @since 0.2.0
-fromImageBaseModel :: Array S Ix2 (Pixel (BaseModel cs) e) -> Array S Ix2 (Pixel cs e)
+fromImageBaseModel :: A.Array A.S A.Ix2 (Pixel (BaseModel cs) e) -> A.Array A.S A.Ix2 (Pixel cs e)
 fromImageBaseModel = unsafeCoerce
 
 
@@ -282,7 +282,7 @@ fromImageBaseModel = unsafeCoerce
 -- `CM.Y` color model
 --
 -- @since 0.2.1
-demoteLumaImage :: Array S Ix2 (Pixel Y' e) -> Array S Ix2 (Pixel CM.Y e)
+demoteLumaImage :: A.Array A.S A.Ix2 (Pixel Y' e) -> A.Array A.S A.Ix2 (Pixel CM.Y e)
 demoteLumaImage = unsafeCoerce
 
 
@@ -290,32 +290,34 @@ demoteLumaImage = unsafeCoerce
 -- with Luma pixels
 --
 -- @since 0.2.1
-promoteLumaImage :: Array S Ix2 (Pixel CM.Y e) -> Array S Ix2 (Pixel Y' e)
+promoteLumaImage :: A.Array A.S A.Ix2 (Pixel CM.Y e) -> A.Array A.S A.Ix2 (Pixel Y' e)
 promoteLumaImage = unsafeCoerce
 
 -- | Same as `demoteLumaImage`, but with Alpha channel
 --
 -- @since 0.2.1
-demoteLumaAlphaImage :: Array S Ix2 (Pixel (Alpha Y') e) -> Array S Ix2 (Pixel (Alpha CM.Y) e)
+demoteLumaAlphaImage ::
+     A.Array A.S A.Ix2 (Pixel (Alpha Y') e) -> A.Array A.S A.Ix2 (Pixel (Alpha CM.Y) e)
 demoteLumaAlphaImage = unsafeCoerce
 
 
 -- | Same as `promoteLumaImage` but with Alpha channel
 --
 -- @since 0.2.1
-promoteLumaAlphaImage :: Array S Ix2 (Pixel (Alpha CM.Y) e) -> Array S Ix2 (Pixel (Alpha Y') e)
+promoteLumaAlphaImage ::
+     A.Array A.S A.Ix2 (Pixel (Alpha CM.Y) e) -> A.Array A.S A.Ix2 (Pixel (Alpha Y') e)
 promoteLumaAlphaImage = unsafeCoerce
 
 
 
 unsafeFromStorableVectorM ::
-     (MonadThrow m, Index ix, Storable a, Storable b)
-  => Sz ix
+     (MonadThrow m, A.Index ix, A.Storable a, A.Storable b)
+  => A.Sz ix
   -> V.Vector a
-  -> m (Array S ix b)
+  -> m (A.Array A.S ix b)
 unsafeFromStorableVectorM sz v =
 #if MIN_VERSION_massiv(0,5,0)
-    resizeM sz $ fromStorableVector Par $ V.unsafeCast v
+    resizeM sz $ A.fromStorableVector A.Par $ V.unsafeCast v
 #else
-    fromVectorM Par sz $ V.unsafeCast v
+    fromVectorM A.Par sz $ V.unsafeCast v
 #endif
