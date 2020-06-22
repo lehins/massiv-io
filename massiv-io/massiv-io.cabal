@@ -1,5 +1,5 @@
 name:                massiv-io
-version:             0.2.2.0
+version:             0.3.0.0
 synopsis:            Import/export of Image files into massiv Arrays
 description:         This package contains functionality for import/export of arrays
                      into the real world. For now it only has the ability to read/write
@@ -11,16 +11,11 @@ author:              Alexey Kuleshevich
 maintainer:          alexey@kuleshevi.ch
 copyright:           2018-2020 Alexey Kuleshevich
 category:            Data, Data Structures
-build-type:          Custom
+build-type:          Simple
 extra-doc-files:     files/*.jpg
 extra-source-files:  README.md
                    , CHANGELOG.md
 cabal-version:       1.18
-custom-setup
-  setup-depends:
-      base
-    , Cabal
-    , cabal-doctest >=1.0.6
 
 library
   hs-source-dirs:      src

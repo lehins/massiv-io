@@ -36,11 +36,10 @@ module Data.Massiv.Array.IO.Image.Netpbm
 import Control.Monad (guard)
 import Data.Bifunctor (first)
 import qualified Data.ByteString as B (ByteString)
-import Data.Massiv.Array as M
+import Data.Massiv.Array as A
 import Data.Massiv.Array.IO.Base
 import Data.Typeable
 import qualified Data.Vector.Storable as V
-import Foreign.Storable (Storable)
 import Graphics.Netpbm as Netpbm hiding (PPM)
 import qualified Graphics.Netpbm as Netpbm (PPM(..))
 import qualified Graphics.Pixel as CM

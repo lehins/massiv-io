@@ -1,6 +1,7 @@
-# 0.2.2
+# 0.3.0
 
-* Support for `Color-0.2`, in particular addition of `Linearity` kind to `RGB` color spaces.
+* Support for `Color-0.2.0`, in particular addition of `Linearity` kind to `RGB` color
+  spaces. Pixels are re-exported from `massiv-io`, hence it is a breaking change.
 
 # 0.2.1
 
