@@ -34,7 +34,7 @@ matrix:
   - env: GHC="8.6.4" RESOLVER="lts-13.19" STACK_YAML="stack-extra-deps.yaml"
     addons: {apt: {packages: [libgmp-dev]}}
 
-  - env: GHC="8.6.5" RESOLVER="lts-14.27" COVERALLS_STACK_YAML="stack-extra-deps.yaml"
+  - env: GHC="8.6.5" RESOLVER="lts-14.27" STACK_YAML="stack-extra-deps.yaml" COVERALLS_STACK_YAML="stack-extra-deps.yaml"
     addons: {apt: {packages: [libgmp-dev]}}
 
   - env: GHC="8.8.3" RESOLVER="lts-16"
@@ -51,7 +51,6 @@ before_install:
   travis_retry curl -sSL https://gist.githubusercontent.com/lehins/fd36a8cc8bf853173437b17f6b6426ad/raw/d9ddb32cac2f0dc6800be4fa54d450f0dcda6c60/git-modtime.hs -o git-modtime.hs
   travis_retry curl -sSL https://get.haskellstack.org/ | sh -s - -f
   BUILD_ARGS="--bench --no-run-benchmarks --haddock --no-haddock-deps"
-  STACK_YAML="stack.yaml"
   if [ -n "${COVERALLS_STACK_YAML}" ]; then
      STACK_YAML="${COVERALLS_STACK_YAML}"
      travis_retry curl -L https://github.com/lehins/stack-hpc-coveralls/releases/download/0.0.5.0/shc.tar.gz | tar xz shc
