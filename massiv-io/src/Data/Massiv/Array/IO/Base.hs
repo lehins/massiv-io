@@ -317,7 +317,7 @@ unsafeFromStorableVectorM ::
   -> m (A.Array A.S ix b)
 unsafeFromStorableVectorM sz v =
 #if MIN_VERSION_massiv(0,5,0)
-    resizeM sz $ A.fromStorableVector A.Par $ V.unsafeCast v
+    A.resizeM sz $ A.fromStorableVector A.Par $ V.unsafeCast v
 #else
     fromVectorM A.Par sz $ V.unsafeCast v
 #endif
