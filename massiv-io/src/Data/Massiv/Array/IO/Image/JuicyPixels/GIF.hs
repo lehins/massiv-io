@@ -4,8 +4,6 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -84,8 +82,8 @@ instance Writable GIF (Image S CM.Y Word8) where
 instance Writable GIF (Image S CM.RGB Word8) where
   encodeM GIF = encodePalettizedRGB
 
-instance Writable GIF (Image S Y' Word8) where
-  encodeM GIF opts = encodeM GIF opts . demoteLumaImage
+instance Writable GIF (Image S (Y' SRGB) Word8) where
+  encodeM GIF opts = encodeM GIF opts . toImageBaseModel
 
 instance Writable GIF (Image S (Y D65) Word8) where
   encodeM GIF opts = encodeM GIF opts . toImageBaseModel
@@ -173,10 +171,10 @@ encodeGIF f opts img =
           | Just Refl <- (eqT :: Maybe (e :~: Word8))
           , Just Refl <- (eqT :: Maybe (cs :~: CM.RGB)) -> encodePalettizedRGB opts img
           | Just Refl <- (eqT :: Maybe (e :~: Word8))
-          , Just Refl <- (eqT :: Maybe (cs :~: (SRGB 'NonLinear))) ->
+          , Just Refl <- (eqT :: Maybe (cs :~: SRGB 'NonLinear)) ->
             encodePalettizedRGB opts $ toImageBaseModel img
           | Just Refl <- (eqT :: Maybe (e :~: Word8))
-          , Just Refl <- (eqT :: Maybe (cs :~: (AdobeRGB 'NonLinear))) ->
+          , Just Refl <- (eqT :: Maybe (cs :~: AdobeRGB 'NonLinear)) ->
             encodePalettizedRGB opts $ toImageBaseModel img
         Nothing -> fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) Nothing
 
@@ -352,8 +350,8 @@ instance Writable (Sequence GIF) (NE.NonEmpty ( JP.GifDelay
 instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S (Alpha CM.RGB) Word8)) where
   encodeM f opts = encodeM f opts . fmap (\(d, i) -> (d, JP.DisposalRestoreBackground, i))
 
-instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S Y' Word8)) where
-  encodeM f opts = encodeM f opts . fmap (fmap demoteLumaImage)
+instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S (Y' SRGB) Word8)) where
+  encodeM f opts = encodeM f opts . fmap (fmap toImageBaseModel)
 
 instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S (Y D65) Word8)) where
   encodeM f opts = encodeM f opts . fmap (fmap toImageBaseModel)

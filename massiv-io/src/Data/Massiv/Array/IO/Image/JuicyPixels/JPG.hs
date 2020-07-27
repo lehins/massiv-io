@@ -3,8 +3,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -85,8 +83,8 @@ instance Writable JPG (Image S CM.CMYK Word8) where
   encodeM JPG JpegOptions {jpegQuality, jpegMetadata} =
     pure . JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata . toJPImageCMYK8
 
-instance Writable JPG (Image S Y' Word8) where
-  encodeM f opts = encodeM f opts . demoteLumaImage
+instance Writable JPG (Image S (Y' SRGB) Word8) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
 instance Writable JPG (Image S (Y D65) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
@@ -94,7 +92,7 @@ instance Writable JPG (Image S (Y D65) Word8) where
 instance Writable JPG (Image S (SRGB 'NonLinear) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable JPG (Image S (YCbCr (SRGB 'NonLinear)) Word8) where
+instance Writable JPG (Image S (Y'CbCr SRGB) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
 instance Writable JPG (Image S (CMYK (SRGB 'NonLinear)) Word8) where
@@ -120,11 +118,11 @@ instance Readable JPG (Image S CM.CMYK Word8) where
 instance Readable JPG (Image S CM.YCbCr Word8) where
   decodeWithMetadataM = decodeWithMetadataJPG
 
-instance Readable JPG (Image S Y' Word8) where
-  decodeWithMetadataM f = fmap (first promoteLumaImage) . decodeWithMetadataM f
+instance Readable JPG (Image S (Y' SRGB) Word8) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable JPG (Image S (Alpha Y') Word8) where
-  decodeWithMetadataM f = fmap (first promoteLumaAlphaImage) . decodeWithMetadataM f
+instance Readable JPG (Image S (Alpha (Y' SRGB)) Word8) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
 instance Readable JPG (Image S (Y D65) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
@@ -138,7 +136,7 @@ instance Readable JPG (Image S (SRGB 'NonLinear) Word8) where
 instance Readable JPG (Image S (CMYK (SRGB 'NonLinear)) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable JPG (Image S (YCbCr (SRGB 'NonLinear)) Word8) where
+instance Readable JPG (Image S (Y'CbCr SRGB) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
 

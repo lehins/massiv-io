@@ -12,15 +12,14 @@ import Data.Massiv.Array.IO hiding (showsType)
 import qualified Data.ByteString.Lazy as BL
 import Test.Massiv.Core
 import System.Random
-import Test.Hspec.QuickCheck
 
 
 elevatorGen :: (Random e, Elevator e) => Gen e
 elevatorGen = choose (minValue, maxValue)
 
-instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel Y' e) where
+instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Y' SRGB) e) where
   arbitrary = PixelY' <$> elevatorGen
-instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Alpha Y') e) where
+instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Alpha (Y' SRGB)) e) where
   arbitrary = PixelY'A <$> elevatorGen <*> elevatorGen
 instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Y i) e) where
   arbitrary = PixelY <$> elevatorGen
@@ -34,10 +33,10 @@ instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (AdobeRGB l) e)
   arbitrary = PixelRGB <$> elevatorGen <*> elevatorGen <*> elevatorGen
 instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Alpha (AdobeRGB l)) e) where
   arbitrary = PixelRGBA <$> elevatorGen <*> elevatorGen <*> elevatorGen <*> elevatorGen
-instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (YCbCr cs) e) where
-  arbitrary = PixelYCbCr <$> elevatorGen <*> elevatorGen <*> elevatorGen
-instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Alpha (YCbCr cs)) e) where
-  arbitrary = PixelYCbCrA <$> elevatorGen <*> elevatorGen <*> elevatorGen <*> elevatorGen
+instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Y'CbCr cs) e) where
+  arbitrary = PixelY'CbCr <$> elevatorGen <*> elevatorGen <*> elevatorGen
+instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Alpha (Y'CbCr cs)) e) where
+  arbitrary = PixelY'CbCrA <$> elevatorGen <*> elevatorGen <*> elevatorGen <*> elevatorGen
 instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (CMYK cs) e) where
   arbitrary = PixelCMYK <$> elevatorGen <*> elevatorGen <*> elevatorGen <*> elevatorGen
 instance (Arbitrary e, Random e, Elevator e) => Arbitrary (Pixel (Alpha (CMYK cs)) e) where

@@ -2,8 +2,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -65,8 +63,8 @@ instance Writable TGA (Image S (Alpha CM.RGB) Word8) where
   encodeM TGA _ img = pure $ JP.encodeTga (toJPImageRGBA8 img)
 
 
-instance Writable TGA (Image S Y' Word8) where
-  encodeM f opts = encodeM f opts . demoteLumaImage
+instance Writable TGA (Image S (Y' SRGB) Word8) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
 instance Writable TGA (Image S (Y D65) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
@@ -93,8 +91,8 @@ instance Readable TGA (Image S (Alpha CM.RGB) Word8) where
   decodeWithMetadataM = decodeWithMetadataTGA
 
 
-instance Readable TGA (Image S Y' Word8) where
-  decodeWithMetadataM f = fmap (first promoteLumaImage) . decodeWithMetadataM f
+instance Readable TGA (Image S (Y' SRGB) Word8) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
 instance Readable TGA (Image S (Y D65) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f

@@ -3,13 +3,10 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 -- |
 -- Module      : Data.Massiv.Array.IO.Image.Netpbm
@@ -193,10 +190,10 @@ instance Readable PGM (Image S CM.Y Word16) where
   decodeWithMetadataM = decodeNetpbmImage
 
 
-instance Readable PGM (Image S Y' Word8) where
-  decodeWithMetadataM f = fmap (first promoteLumaImage) . decodeWithMetadataM f
-instance Readable PGM (Image S Y' Word16) where
-  decodeWithMetadataM f = fmap (first promoteLumaImage) . decodeWithMetadataM f
+instance Readable PGM (Image S (Y' SRGB) Word8) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
+instance Readable PGM (Image S (Y' SRGB) Word16) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 instance Readable PGM (Image S (Y D65) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 instance Readable PGM (Image S (Y D65) Word16) where
@@ -209,10 +206,10 @@ instance Readable (Sequence PGM) [Image S CM.Y Word16] where
   decodeWithMetadataM = decodePPMs fromNetpbmImage
 
 
-instance Readable (Sequence PGM) [Image S Y' Word8] where
-  decodeWithMetadataM f = fmap (first (fmap promoteLumaImage)) . decodeWithMetadataM f
-instance Readable (Sequence PGM) [Image S Y' Word16] where
-  decodeWithMetadataM f = fmap (first (fmap promoteLumaImage)) . decodeWithMetadataM f
+instance Readable (Sequence PGM) [Image S (Y' SRGB) Word8] where
+  decodeWithMetadataM f = fmap (first (fmap fromImageBaseModel)) . decodeWithMetadataM f
+instance Readable (Sequence PGM) [Image S (Y' SRGB) Word16] where
+  decodeWithMetadataM f = fmap (first (fmap fromImageBaseModel)) . decodeWithMetadataM f
 instance Readable (Sequence PGM) [Image S (Y D65) Word8] where
   decodeWithMetadataM f = fmap (first (fmap fromImageBaseModel)) . decodeWithMetadataM f
 instance Readable (Sequence PGM) [Image S (Y D65) Word16] where

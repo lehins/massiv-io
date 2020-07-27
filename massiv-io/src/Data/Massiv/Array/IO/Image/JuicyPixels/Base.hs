@@ -4,8 +4,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -165,37 +163,37 @@ fromDynamicImageM jpDynImg =
     JP.ImageY8 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.Y Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel Y' Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Word8))
         , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Word8))
         ]
     JP.ImageY16 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.Y Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel Y' Word16))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Word16))
         , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Word16))
         ]
     JP.ImageY32 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.Y Word32))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel Y' Word32))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Word32))
         , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Word32))
         ]
     JP.ImageYF jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.Y Float))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel Y' Float))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Float))
         , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Float))
         ]
     JP.ImageYA8 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.Y) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha Y') Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y' SRGB)) Word8))
         , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y D65)) Word8))
         ]
     JP.ImageYA16 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.Y) Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha Y') Word16))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y' SRGB)) Word16))
         , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y D65)) Word16))
         ]
     JP.ImageRGB8 jimg ->
@@ -231,8 +229,8 @@ fromDynamicImageM jpDynImg =
     JP.ImageYCbCr8 jimg ->
       sequenceMaybe
         [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.YCbCr Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (YCbCr (SRGB 'NonLinear)) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (YCbCr (AdobeRGB 'NonLinear)) Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y'CbCr SRGB) Word8))
+        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y'CbCr AdobeRGB) Word8))
         ]
     JP.ImageCMYK8 jimg ->
       sequenceMaybe
@@ -329,7 +327,7 @@ fromDynamicImageAuto jpDynImg =
       (fromJPImageUnsafeM jimg :: m (Image S (Alpha (SRGB 'NonLinear)) Word16))
     JP.ImageYCbCr8 jimg ->
       compute . convertImage <$>
-      (fromJPImageUnsafeM jimg :: m (Image S (YCbCr (SRGB 'NonLinear)) Word8))
+      (fromJPImageUnsafeM jimg :: m (Image S (Y'CbCr SRGB) Word8))
     JP.ImageCMYK8 jimg ->
       compute . convertImage <$>
       (fromJPImageUnsafeM jimg :: m (Image S (CMYK (SRGB 'NonLinear)) Word8))
@@ -380,7 +378,7 @@ maybeJPImageY8 ::
 maybeJPImageY8 img =
   msum
     [ (\Refl -> toJPImageY8 img) <$> (eqT :: Maybe (cs :~: CM.Y))
-    , (\Refl -> toJPImageY8 $ demoteLumaImage img) <$> (eqT :: Maybe (cs :~: Y'))
+    , (\Refl -> toJPImageY8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y' SRGB))
     , (\Refl -> toJPImageY8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y D65))
     ]
 {-# INLINE maybeJPImageY8 #-}
@@ -398,7 +396,7 @@ maybeJPImageY16 ::
 maybeJPImageY16 img =
   msum
     [ (\Refl -> toJPImageY16 img) <$> (eqT :: Maybe (cs :~: CM.Y))
-    , (\Refl -> toJPImageY16 $ demoteLumaImage img) <$> (eqT :: Maybe (cs :~: Y'))
+    , (\Refl -> toJPImageY16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y' SRGB))
     , (\Refl -> toJPImageY16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y D65))
     ]
 {-# INLINE maybeJPImageY16 #-}
@@ -415,7 +413,7 @@ maybeJPImageY32 ::
 maybeJPImageY32 img =
   msum
     [ (\Refl -> toJPImageY32 img) <$> (eqT :: Maybe (cs :~: CM.Y))
-    , (\Refl -> toJPImageY32 $ demoteLumaImage img) <$> (eqT :: Maybe (cs :~: Y'))
+    , (\Refl -> toJPImageY32 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y' SRGB))
     , (\Refl -> toJPImageY32 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y D65))
     ]
 {-# INLINE maybeJPImageY32 #-}
@@ -433,7 +431,7 @@ maybeJPImageYF ::
 maybeJPImageYF img =
   msum
     [ (\Refl -> toJPImageYF img) <$> (eqT :: Maybe (cs :~: CM.Y))
-    , (\Refl -> toJPImageYF $ demoteLumaImage img) <$> (eqT :: Maybe (cs :~: Y'))
+    , (\Refl -> toJPImageYF $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y' SRGB))
     , (\Refl -> toJPImageYF $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y D65))
     ]
 {-# INLINE maybeJPImageYF #-}
@@ -451,7 +449,7 @@ maybeJPImageYA8 ::
 maybeJPImageYA8 img =
   msum
     [ (\Refl -> toJPImageYA8 img) <$> (eqT :: Maybe (cs :~: CM.Y))
-    , (\Refl -> toJPImageYA8 $ demoteLumaAlphaImage img) <$> (eqT :: Maybe (cs :~: Y'))
+    , (\Refl -> toJPImageYA8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y' SRGB))
     , (\Refl -> toJPImageYA8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y D65))
     ]
 {-# INLINE maybeJPImageYA8 #-}
@@ -472,7 +470,7 @@ maybeJPImageYA16 ::
 maybeJPImageYA16 img =
   msum
     [ (\Refl -> toJPImageYA16 img) <$> (eqT :: Maybe (cs :~: CM.Y))
-    , (\Refl -> toJPImageYA16 $ demoteLumaAlphaImage img) <$> (eqT :: Maybe (cs :~: Y'))
+    , (\Refl -> toJPImageYA16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y' SRGB))
     , (\Refl -> toJPImageYA16 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y D65))
     ]
 {-# INLINE maybeJPImageYA16 #-}
@@ -587,8 +585,7 @@ maybeJPImageYCbCr8 ::
 maybeJPImageYCbCr8 img =
   msum
     [ (\Refl -> toJPImageYCbCr8 img) <$> (eqT :: Maybe (cs :~: CM.YCbCr))
-    , (\Refl -> toJPImageYCbCr8 $ toImageBaseModel img) <$>
-      (eqT :: Maybe (cs :~: YCbCr (SRGB 'NonLinear)))
+    , (\Refl -> toJPImageYCbCr8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: Y'CbCr SRGB))
     --, (\Refl -> toJPImageYCbCr8 $ toImageBaseModel img) <$> (eqT :: Maybe (cs :~: YCbCr (AdobeRGB 'NonLinear)))
     ]
 {-# INLINE maybeJPImageYCbCr8 #-}
@@ -660,7 +657,7 @@ fromJPImageUnsafeM (JP.Image n m !v) = do
 -- Conversion to sRGB color space based color models
 
 toYCbCr8 :: forall cs i e . ColorSpace cs i e => Pixel cs e -> Pixel CM.YCbCr Word8
-toYCbCr8 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (YCbCr (SRGB 'NonLinear)) Word8)
+toYCbCr8 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (Y'CbCr SRGB) Word8)
 
 toCMYK8 :: forall cs i e . ColorSpace cs i e => Pixel cs e -> Pixel CM.CMYK Word8
 toCMYK8 = toPixelBaseModel . (convertPixel :: Pixel cs e -> Pixel (CMYK (SRGB 'NonLinear)) Word8)

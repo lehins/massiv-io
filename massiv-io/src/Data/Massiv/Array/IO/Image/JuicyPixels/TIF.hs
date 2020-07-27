@@ -1,9 +1,7 @@
-{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE PatternSynonyms #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -101,23 +99,23 @@ instance Writable TIF (Image S CM.CMYK Word8) where
 instance Writable TIF (Image S CM.CMYK Word16) where
   encodeM TIF _ img = pure $ JP.encodeTiff (toJPImageCMYK16 img)
 
-instance Writable TIF (Image S Y' Word8) where
-  encodeM f opts = encodeM f opts . demoteLumaImage
+instance Writable TIF (Image S (Y' SRGB) Word8) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable TIF (Image S Y' Word16) where
-  encodeM f opts = encodeM f opts . demoteLumaImage
+instance Writable TIF (Image S (Y' SRGB) Word16) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable TIF (Image S Y' Word32) where
-  encodeM f opts = encodeM f opts . demoteLumaImage
+instance Writable TIF (Image S (Y' SRGB) Word32) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable TIF (Image S Y' Float) where
-  encodeM f opts = encodeM f opts . demoteLumaImage
+instance Writable TIF (Image S (Y' SRGB) Float) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable TIF (Image S (Alpha Y') Word8) where
-  encodeM f opts = encodeM f opts . demoteLumaAlphaImage
+instance Writable TIF (Image S (Alpha (Y' SRGB)) Word8) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable TIF (Image S (Alpha Y') Word16) where
-  encodeM f opts = encodeM f opts . demoteLumaAlphaImage
+instance Writable TIF (Image S (Alpha (Y' SRGB)) Word16) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
 instance Writable TIF (Image S (Y D65) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
@@ -149,7 +147,7 @@ instance Writable TIF (Image S (Alpha (SRGB 'NonLinear)) Word8) where
 instance Writable TIF (Image S (Alpha (SRGB 'NonLinear)) Word16) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable TIF (Image S (YCbCr (SRGB 'NonLinear)) Word8) where
+instance Writable TIF (Image S (Y'CbCr SRGB) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
 instance Writable TIF (Image S (CMYK (SRGB 'NonLinear)) Word8) where
@@ -200,23 +198,23 @@ instance Readable TIF (Image S CM.CMYK Word16) where
   decodeWithMetadataM = decodeWithMetadataTIF
 
 
-instance Readable TIF (Image S Y' Word8) where
-  decodeWithMetadataM f = fmap (first promoteLumaImage) . decodeWithMetadataM f
+instance Readable TIF (Image S (Y' SRGB) Word8) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable TIF (Image S Y' Word16) where
-  decodeWithMetadataM f = fmap (first promoteLumaImage) . decodeWithMetadataM f
+instance Readable TIF (Image S (Y' SRGB) Word16) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable TIF (Image S Y' Word32) where
-  decodeWithMetadataM f = fmap (first promoteLumaImage) . decodeWithMetadataM f
+instance Readable TIF (Image S (Y' SRGB) Word32) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable TIF (Image S Y' Float) where
-  decodeWithMetadataM f = fmap (first promoteLumaImage) . decodeWithMetadataM f
+instance Readable TIF (Image S (Y' SRGB) Float) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable TIF (Image S (Alpha Y') Word8) where
-  decodeWithMetadataM f = fmap (first promoteLumaAlphaImage) . decodeWithMetadataM f
+instance Readable TIF (Image S (Alpha (Y' SRGB)) Word8) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
-instance Readable TIF (Image S (Alpha Y') Word16) where
-  decodeWithMetadataM f = fmap (first promoteLumaAlphaImage) . decodeWithMetadataM f
+instance Readable TIF (Image S (Alpha (Y' SRGB)) Word16) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
 instance Readable TIF (Image S (Y D65) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f

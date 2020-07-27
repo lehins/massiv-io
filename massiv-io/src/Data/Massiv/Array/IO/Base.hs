@@ -282,31 +282,34 @@ fromImageBaseModel = unsafeCoerce
 -- `CM.Y` color model
 --
 -- @since 0.2.1
-demoteLumaImage :: A.Array A.S A.Ix2 (Pixel Y' e) -> A.Array A.S A.Ix2 (Pixel CM.Y e)
+demoteLumaImage :: A.Array A.S A.Ix2 (Pixel (Y' cs) e) -> A.Array A.S A.Ix2 (Pixel CM.Y e)
 demoteLumaImage = unsafeCoerce
-
+{-# DEPRECATED demoteLumaImage "In favor of `toImageBaseModel`" #-}
 
 -- | Cast an array with pixels in a plain single channel `CM.Y` color model to an array
 -- with Luma pixels
 --
 -- @since 0.2.1
-promoteLumaImage :: A.Array A.S A.Ix2 (Pixel CM.Y e) -> A.Array A.S A.Ix2 (Pixel Y' e)
+promoteLumaImage :: A.Array A.S A.Ix2 (Pixel CM.Y e) -> A.Array A.S A.Ix2 (Pixel (Y' cs) e)
 promoteLumaImage = unsafeCoerce
+{-# DEPRECATED promoteLumaImage "In favor of `fromImageBaseModel`" #-}
 
 -- | Same as `demoteLumaImage`, but with Alpha channel
 --
 -- @since 0.2.1
 demoteLumaAlphaImage ::
-     A.Array A.S A.Ix2 (Pixel (Alpha Y') e) -> A.Array A.S A.Ix2 (Pixel (Alpha CM.Y) e)
+     A.Array A.S A.Ix2 (Pixel (Alpha (Y' cs)) e) -> A.Array A.S A.Ix2 (Pixel (Alpha CM.Y) e)
 demoteLumaAlphaImage = unsafeCoerce
+{-# DEPRECATED demoteLumaAlphaImage "In favor of `toImageBaseModel`" #-}
 
 
 -- | Same as `promoteLumaImage` but with Alpha channel
 --
 -- @since 0.2.1
 promoteLumaAlphaImage ::
-     A.Array A.S A.Ix2 (Pixel (Alpha CM.Y) e) -> A.Array A.S A.Ix2 (Pixel (Alpha Y') e)
+     A.Array A.S A.Ix2 (Pixel (Alpha CM.Y) e) -> A.Array A.S A.Ix2 (Pixel (Alpha (Y' cs)) e)
 promoteLumaAlphaImage = unsafeCoerce
+{-# DEPRECATED promoteLumaAlphaImage "In favor of `fromImageBaseModel`" #-}
 
 
 

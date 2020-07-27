@@ -1,3 +1,8 @@
+# 0.4.0
+
+* Adjust insatnces to account for changes in `Color-0.3.0`, namely improvements to Luma
+  (`Y'`) and `Y'CBCr` color spaces.
+
 # 0.3.0
 
 * Support for `Color-0.2.0`, in particular addition of `Linearity` kind to `RGB` color

@@ -3,8 +3,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -77,8 +75,8 @@ instance Writable BMP (Image S (Alpha CM.RGB) Word8) where
     pure . JP.encodeBitmapWithMetadata bitmapMetadata . toJPImageRGBA8
 
 
-instance Writable BMP (Image S Y' Word8) where
-  encodeM f opts = encodeM f opts . demoteLumaImage
+instance Writable BMP (Image S (Y' SRGB) Word8) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
 instance Writable BMP (Image S (Y D65) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
@@ -103,8 +101,8 @@ instance Readable BMP (Image S CM.RGB Word8) where
 instance Readable BMP (Image S (Alpha CM.RGB) Word8) where
   decodeWithMetadataM = decodeWithMetadataBMP
 
-instance Readable BMP (Image S Y' Word8) where
-  decodeWithMetadataM f = fmap (first promoteLumaImage) . decodeWithMetadataM f
+instance Readable BMP (Image S (Y' SRGB) Word8) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
 instance Readable BMP (Image S (Y D65) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f

@@ -38,10 +38,10 @@ specEncodeDecodeNoErrorAuto ::
      , Readable (Auto f) (Image S (CMYK (AdobeRGB 'NonLinear)) Word16)
      , Readable (Auto f) (Image S (CMYK (AdobeRGB 'NonLinear)) Word32)
      , Readable (Auto f) (Image S (CMYK (AdobeRGB 'NonLinear)) Word64)
-     , Readable (Auto f) (Image S (YCbCr (SRGB 'NonLinear)) Word8)
-     , Readable (Auto f) (Image S (YCbCr (SRGB 'NonLinear)) Word16)
-     , Readable (Auto f) (Image S (YCbCr (SRGB 'NonLinear)) Word32)
-     , Readable (Auto f) (Image S (YCbCr (SRGB 'NonLinear)) Word64)
+     , Readable (Auto f) (Image S (Y'CbCr SRGB) Word8)
+     , Readable (Auto f) (Image S (Y'CbCr SRGB) Word16)
+     , Readable (Auto f) (Image S (Y'CbCr SRGB) Word32)
+     , Readable (Auto f) (Image S (Y'CbCr SRGB) Word64)
      -- (AdobeRGB 'NonLinear) doesn't have Luma instance
      -- , Readable (Auto f) (Image S (YCbCr (AdobeRGB 'NonLinear)) Word8)
      -- , Readable (Auto f) (Image S (YCbCr (AdobeRGB 'NonLinear)) Word16)
@@ -79,10 +79,10 @@ specEncodeDecodeNoErrorAuto ::
      , Writable (Auto f) (Image S (CMYK (AdobeRGB 'NonLinear)) Word16)
      , Writable (Auto f) (Image S (CMYK (AdobeRGB 'NonLinear)) Word32)
      , Writable (Auto f) (Image S (CMYK (AdobeRGB 'NonLinear)) Word64)
-     , Writable (Auto f) (Image S (YCbCr (SRGB 'NonLinear)) Word8)
-     , Writable (Auto f) (Image S (YCbCr (SRGB 'NonLinear)) Word16)
-     , Writable (Auto f) (Image S (YCbCr (SRGB 'NonLinear)) Word32)
-     , Writable (Auto f) (Image S (YCbCr (SRGB 'NonLinear)) Word64)
+     , Writable (Auto f) (Image S (Y'CbCr SRGB) Word8)
+     , Writable (Auto f) (Image S (Y'CbCr SRGB) Word16)
+     , Writable (Auto f) (Image S (Y'CbCr SRGB) Word32)
+     , Writable (Auto f) (Image S (Y'CbCr SRGB) Word64)
      -- , Writable (Auto f) (Image S (YCbCr (AdobeRGB 'NonLinear)) Word8)
      -- , Writable (Auto f) (Image S (YCbCr (AdobeRGB 'NonLinear)) Word16)
      -- , Writable (Auto f) (Image S (YCbCr (AdobeRGB 'NonLinear)) Word32)
@@ -132,10 +132,10 @@ specEncodeDecodeNoErrorAuto f =
       specEncodeDecodeAutoNoError @(CMYK (SRGB 'NonLinear)) @Word16 f
       specEncodeDecodeAutoNoError @(CMYK (SRGB 'NonLinear)) @Word32 f
       specEncodeDecodeAutoNoError @(CMYK (SRGB 'NonLinear)) @Word64 f
-      specEncodeDecodeAutoNoError @(YCbCr (SRGB 'NonLinear)) @Word8 f
-      specEncodeDecodeAutoNoError @(YCbCr (SRGB 'NonLinear)) @Word16 f
-      specEncodeDecodeAutoNoError @(YCbCr (SRGB 'NonLinear)) @Word32 f
-      specEncodeDecodeAutoNoError @(YCbCr (SRGB 'NonLinear)) @Word64 f
+      specEncodeDecodeAutoNoError @(Y'CbCr SRGB) @Word8 f
+      specEncodeDecodeAutoNoError @(Y'CbCr SRGB) @Word16 f
+      specEncodeDecodeAutoNoError @(Y'CbCr SRGB) @Word32 f
+      specEncodeDecodeAutoNoError @(Y'CbCr SRGB) @Word64 f
       specEncodeDecodeAutoNoError @(AdobeRGB 'NonLinear) @Word8 f
       specEncodeDecodeAutoNoError @(AdobeRGB 'NonLinear) @Word16 f
       specEncodeDecodeAutoNoError @(AdobeRGB 'NonLinear) @Word32 f

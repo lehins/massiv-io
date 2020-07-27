@@ -4,8 +4,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 -- |
 -- Module      : Data.Massiv.Array.IO
 -- Copyright   : (c) Alexey Kuleshevich 2018-2020
@@ -131,7 +129,7 @@ writeLazyAtomically filepath bss =
 -- | Write an array to disk.
 --
 -- >>> :set -XDataKinds
--- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (YCbCr (SRGB 'NonLinear)) Word8)
+-- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (Y'CbCr SRGB) Word8)
 -- >>> frogAdobeRGB = convertImage frogYCbCr :: Image D (AdobeRGB 'NonLinear) Word8
 -- >>> writeArray JPG def "files/_frog.jpg" $ toImageBaseModel $ computeAs S frogAdobeRGB
 --
@@ -161,7 +159,7 @@ writeArray format opts filepath arr =
 -- Resulting image will be read as specified by the type signature:
 --
 -- >>> :set -XDataKinds
--- >>> frog <- readImage "files/frog.jpg" :: IO (Image S (YCbCr (SRGB 'NonLinear)) Word8)
+-- >>> frog <- readImage "files/frog.jpg" :: IO (Image S (Y'CbCr SRGB) Word8)
 -- >>> size frog
 -- Sz (200 :. 320)
 --
@@ -173,13 +171,13 @@ writeArray format opts filepath arr =
 -- actual image file, `ConvertError` will be thrown.
 --
 -- >>> frog <- readImage "files/frog.jpg" :: IO (Image S (SRGB 'NonLinear) Word8)
--- *** Exception: ConvertError "Cannot decode JPG image <Image S YCbCr Word8> as <Image S SRGB 'NonLinear Word8>"
+-- *** Exception: ConvertError "Cannot decode JPG image <Image S Y'CbCr Word8> as <Image S SRGB 'NonLinear Word8>"
 --
 -- Whenever image is not in the color space or precision that we need, either use
 -- `readImageAuto` or manually convert to the desired one by using the appropriate
 -- conversion functions:
 --
--- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (YCbCr (SRGB 'NonLinear)) Word8)
+-- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (Y'CbCr SRGB) Word8)
 -- >>> let frogSRGB = convertImage frogYCbCr :: Image D (SRGB 'NonLinear) Word8
 --
 -- A simpler approach to achieve the same effect would be to use `readImageAuto`:
@@ -236,7 +234,7 @@ writeImage path img = liftIO (encodeImageM imageWriteFormats path img >>= writeL
 -- on then it will be encoded as such. For example writing a TIF file in CMYK color model,
 -- 8bit precision and an sRGB color space:
 --
--- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (YCbCr (SRGB 'NonLinear)) Word8)
+-- >>> frogYCbCr <- readImage "files/frog.jpg" :: IO (Image S (Y'CbCr SRGB) Word8)
 -- >>> writeImageAuto "files/frog.tiff" (convertImage frogYCbCr :: Image D (CMYK (AdobeRGB 'NonLinear)) Word8)
 --
 -- Regardless that the color space supplied was `AdobeRGB` auto conversion will ensure it
@@ -374,9 +372,9 @@ precision for reading and writing without any conversion:
 * 'JPG':
 
     * __read__: ('PixelY' 'Word8'), ('PixelYA' 'Word8'), ('PixelRGB' 'Word8'), ('PixelCMYK' 'Word8'),
-    ('PixelYCbCr', 'Word8')
+    (`PixelY'CbCr`, 'Word8')
     * __write__: ('PixelY' 'Word8'), ('PixelRGB' 'Word8'), ('PixelCMYK' 'Word8'),
-    ('PixelYCbCr', 'Word8')
+    (`PixelY'CbCr`, 'Word8')
 
 * 'PNG':
 
@@ -401,7 +399,7 @@ precision for reading and writing without any conversion:
     ('PixelY' 'Word8'), ('PixelY' 'Word16'), ('PixelY' 'Word32'), ('PixelY' 'Float'),
     ('PixelYA' 'Word8'), ('PixelYA' 'Word16'),
     ('PixelRGB' 'Word8'), ('PixelRGB' 'Word16'), ('PixelRGBA' 'Word8'), ('PixelRGBA' 'Word16')
-    ('PixelCMYK' 'Word8'), ('PixelCMYK' 'Word16'), ('PixelYCbCr' 'Word8')
+    ('PixelCMYK' 'Word8'), ('PixelCMYK' 'Word16'), (`PixelY'CbCr` 'Word8')
 
 * 'PBM':
 

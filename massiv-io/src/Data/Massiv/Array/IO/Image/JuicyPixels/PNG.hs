@@ -79,17 +79,17 @@ instance Writable PNG (Image S (Alpha CM.RGB) Word16) where
   encodeM PNG _ img = pure $ JP.encodePng (toJPImageRGBA16 img)
 
 
-instance Writable PNG (Image S Y' Word8) where
-  encodeM f opts = encodeM f opts . demoteLumaImage
+instance Writable PNG (Image S (Y' SRGB) Word8) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable PNG (Image S Y' Word16) where
-  encodeM f opts = encodeM f opts . demoteLumaImage
+instance Writable PNG (Image S (Y' SRGB) Word16) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable PNG (Image S (Alpha Y') Word8) where
-  encodeM f opts = encodeM f opts . demoteLumaAlphaImage
+instance Writable PNG (Image S (Alpha (Y' SRGB)) Word8) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance Writable PNG (Image S (Alpha Y') Word16) where
-  encodeM f opts = encodeM f opts . demoteLumaAlphaImage
+instance Writable PNG (Image S (Alpha (Y' SRGB)) Word16) where
+  encodeM f opts = encodeM f opts . toImageBaseModel
 
 instance Writable PNG (Image S (Y D65) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
@@ -145,17 +145,17 @@ instance Readable PNG (Image S (Alpha CM.RGB) Word16) where
   decodeWithMetadataM = decodeWithMetadataPNG
 
 
-instance Readable PNG (Image S Y' Word8) where
-  decodeWithMetadataM f = fmap (first promoteLumaImage) . decodeWithMetadataPNG f
+instance Readable PNG (Image S (Y' SRGB) Word8) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataPNG f
 
-instance Readable PNG (Image S Y' Word16) where
-  decodeWithMetadataM f = fmap (first promoteLumaImage) . decodeWithMetadataPNG f
+instance Readable PNG (Image S (Y' SRGB) Word16) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataPNG f
 
-instance Readable PNG (Image S (Alpha Y') Word8) where
-  decodeWithMetadataM f = fmap (first promoteLumaAlphaImage) . decodeWithMetadataPNG f
+instance Readable PNG (Image S (Alpha (Y' SRGB)) Word8) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataPNG f
 
-instance Readable PNG (Image S (Alpha Y') Word16) where
-  decodeWithMetadataM f = fmap (first promoteLumaAlphaImage) . decodeWithMetadataPNG f
+instance Readable PNG (Image S (Alpha (Y' SRGB)) Word16) where
+  decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataPNG f
 
 instance Readable PNG (Image S (Y D65) Word8) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataPNG f
