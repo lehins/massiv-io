@@ -54,13 +54,14 @@ import qualified Data.ByteString as B (ByteString)
 import qualified Data.ByteString.Lazy as BL (ByteString)
 import Data.Default.Class (Default(..))
 import qualified Data.Massiv.Array as A
-import Data.Massiv.Array.Manifest.Vector
 import Data.Typeable
 import qualified Data.Vector.Storable as V
 import Graphics.Pixel as CM
 import Graphics.Pixel.ColorSpace
 import Unsafe.Coerce
-
+#if !MIN_VERSION_massiv(0,5,0)
+import Data.Massiv.Array.Manifest.Vector
+#endif
 type Image r cs e = A.Array r A.Ix2 (Pixel cs e)
 
 -- | Conversion error, which is thrown when there is a mismatch between the

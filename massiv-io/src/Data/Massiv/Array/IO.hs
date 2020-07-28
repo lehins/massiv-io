@@ -171,7 +171,7 @@ writeArray format opts filepath arr =
 -- actual image file, `ConvertError` will be thrown.
 --
 -- >>> frog <- readImage "files/frog.jpg" :: IO (Image S (SRGB 'NonLinear) Word8)
--- *** Exception: ConvertError "Cannot decode JPG image <Image S Y'CbCr Word8> as <Image S SRGB 'NonLinear Word8>"
+-- *** Exception: ConvertError "Cannot decode JPG image <Image S YCbCr Word8> as <Image S SRGB 'NonLinear Word8>"
 --
 -- Whenever image is not in the color space or precision that we need, either use
 -- `readImageAuto` or manually convert to the desired one by using the appropriate
