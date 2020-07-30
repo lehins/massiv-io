@@ -8,7 +8,7 @@ module Test.Massiv.Array.IO.Image.Common where
 
 import Data.List.NonEmpty as NE (NonEmpty(..))
 import Data.Massiv.Array
-import Data.Massiv.Array.IO hiding (showsType)
+import Data.Massiv.Array.IO
 import qualified Data.ByteString.Lazy as BL
 import Test.Massiv.Core
 import System.Random

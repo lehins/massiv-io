@@ -76,7 +76,7 @@ instance FileFormat GIF where
   type Metadata GIF = JP.Metadatas
   ext _ = ".gif"
 
-instance Writable GIF (Image S CM.Y Word8) where
+instance Writable GIF (Image S CM.X Word8) where
   encodeM GIF _ =  pure . JP.encodeGifImage . toJPImageY8
 
 instance Writable GIF (Image S CM.RGB Word8) where
@@ -187,7 +187,7 @@ encodeAutoGIF ::
   -> m BL.ByteString
 encodeAutoGIF _ opts img =
   fallbackEncodePalettizedRGB $ do
-    Refl <- eqT :: Maybe (BaseModel cs :~: CM.Y)
+    Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
     pure $ JP.encodeGifImage $ toJPImageY8 $ A.map (toPixel8 . toPixelBaseModel) img
   where
     fallbackEncodePalettizedRGB =
@@ -271,7 +271,7 @@ decodeSeqMetadata decode f bs = do
   pure (imgs, delays)
 
 
-instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S CM.Y Word8)) where
+instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S CM.X Word8)) where
   encodeM _ SequenceGifOptions {sequenceGifLooping} gifs =
     encodeError $
     JP.encodeComplexGifImage $

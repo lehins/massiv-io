@@ -7,7 +7,7 @@
 module Test.Massiv.Array.IO.Image.AutoSpec (spec) where
 
 import Data.Massiv.Array
-import Data.Massiv.Array.IO hiding (showsType)
+import Data.Massiv.Array.IO
 import Test.Massiv.Core
 import Test.Massiv.Array.IO.Image.Common
 

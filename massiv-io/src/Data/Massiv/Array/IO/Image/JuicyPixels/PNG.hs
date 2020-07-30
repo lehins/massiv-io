@@ -2,8 +2,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -54,16 +52,16 @@ instance FileFormat PNG where
   type Metadata PNG = JP.Metadatas
   ext _ = ".png"
 
-instance Writable PNG (Image S CM.Y Word8) where
+instance Writable PNG (Image S CM.X Word8) where
   encodeM PNG _ img = pure $ JP.encodePng (toJPImageY8 img)
 
-instance Writable PNG (Image S CM.Y Word16) where
+instance Writable PNG (Image S CM.X Word16) where
   encodeM PNG _ img = pure $ JP.encodePng (toJPImageY16 img)
 
-instance Writable PNG (Image S (Alpha CM.Y) Word8) where
+instance Writable PNG (Image S (Alpha CM.X) Word8) where
   encodeM PNG _ img = pure $ JP.encodePng (toJPImageYA8 img)
 
-instance Writable PNG (Image S (Alpha CM.Y) Word16) where
+instance Writable PNG (Image S (Alpha CM.X) Word16) where
   encodeM PNG _ img = pure $ JP.encodePng (toJPImageYA16 img)
 
 instance Writable PNG (Image S CM.RGB Word8) where
@@ -120,16 +118,16 @@ instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel 
   encodeM f _ = pure . encodeAutoPNG f
 
 
-instance Readable PNG (Image S CM.Y Word8) where
+instance Readable PNG (Image S CM.X Word8) where
   decodeWithMetadataM = decodeWithMetadataPNG
 
-instance Readable PNG (Image S CM.Y Word16) where
+instance Readable PNG (Image S CM.X Word16) where
   decodeWithMetadataM = decodeWithMetadataPNG
 
-instance Readable PNG (Image S (Alpha CM.Y) Word8) where
+instance Readable PNG (Image S (Alpha CM.X) Word8) where
   decodeWithMetadataM = decodeWithMetadataPNG
 
-instance Readable PNG (Image S (Alpha CM.Y) Word16) where
+instance Readable PNG (Image S (Alpha CM.X) Word16) where
   decodeWithMetadataM = decodeWithMetadataPNG
 
 instance Readable PNG (Image S CM.RGB Word8) where
@@ -246,7 +244,7 @@ encodeAutoPNG ::
 encodeAutoPNG _ img =
   fromMaybe (toPng toJPImageRGB16 toSRGB16 img) $
   msum
-    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.Y)
+    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Bit)
                 pure $ toPng toJPImageY8 (toPixel8 . toPixelBaseModel) img
@@ -254,7 +252,7 @@ encodeAutoPNG _ img =
                 pure $ toPng toJPImageY8 toPixelBaseModel img
            , pure $ toPng toJPImageY16 (toPixel16 . toPixelBaseModel) img
            ]
-    , do Refl <- eqT :: Maybe (BaseModel cs :~: Alpha CM.Y)
+    , do Refl <- eqT :: Maybe (BaseModel cs :~: Alpha CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Word8)
                 pure $ toPng toJPImageYA8 toPixelBaseModel img

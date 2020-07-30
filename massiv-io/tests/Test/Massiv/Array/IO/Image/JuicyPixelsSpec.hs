@@ -6,7 +6,7 @@
 {-# LANGUAGE TypeApplications #-}
 module Test.Massiv.Array.IO.Image.JuicyPixelsSpec (spec) where
 
-import Data.Massiv.Array.IO hiding (showsType)
+import Data.Massiv.Array.IO
 import Test.Massiv.Core
 import Test.Massiv.Array.IO.Image.Common
 

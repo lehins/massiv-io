@@ -67,7 +67,7 @@ instance FileFormat JPG where
   ext _ = ".jpg"
   exts _ = [".jpg", ".jpeg"]
 
-instance Writable JPG (Image S CM.Y Word8) where
+instance Writable JPG (Image S CM.X Word8) where
   encodeM JPG JpegOptions {jpegQuality, jpegMetadata} =
     pure . JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata . toJPImageY8
 
@@ -103,10 +103,10 @@ instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel 
   encodeM f opts = pure . encodeAutoJPG f opts
 
 
-instance Readable JPG (Image S CM.Y Word8) where
+instance Readable JPG (Image S CM.X Word8) where
   decodeWithMetadataM = decodeWithMetadataJPG
 
-instance Readable JPG (Image S (Alpha CM.Y) Word8) where
+instance Readable JPG (Image S (Alpha CM.X) Word8) where
   decodeWithMetadataM = decodeWithMetadataJPG
 
 instance Readable JPG (Image S CM.RGB Word8) where
@@ -198,7 +198,7 @@ encodeAutoJPG ::
 encodeAutoJPG _ JpegOptions {jpegQuality, jpegMetadata} img =
   fromMaybe (toJpeg toJPImageYCbCr8 toYCbCr8 img) $
   msum
-    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.Y)
+    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Bit)
                 pure $ toJpeg toJPImageY8 (toPixel8 . toPixelBaseModel) img

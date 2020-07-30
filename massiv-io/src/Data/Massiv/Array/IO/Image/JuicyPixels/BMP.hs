@@ -62,7 +62,7 @@ instance FileFormat BMP where
 
   ext _ = ".bmp"
 
-instance Writable BMP (Image S CM.Y Word8) where
+instance Writable BMP (Image S CM.X Word8) where
   encodeM BMP BitmapOptions {bitmapMetadata} =
     pure . JP.encodeBitmapWithMetadata bitmapMetadata . toJPImageY8
 
@@ -92,7 +92,7 @@ instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel 
   encodeM f opts = pure . encodeAutoBMP f opts
 
 
-instance Readable BMP (Image S CM.Y Word8) where
+instance Readable BMP (Image S CM.X Word8) where
   decodeWithMetadataM = decodeWithMetadataBMP
 
 instance Readable BMP (Image S CM.RGB Word8) where
@@ -171,7 +171,7 @@ encodeAutoBMP ::
 encodeAutoBMP _ BitmapOptions {bitmapMetadata} img =
   fromMaybe (toBitmap toJPImageRGB8 toSRGB8 img) $
   msum
-    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.Y)
+    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Bit)
                 pure $ toBitmap toJPImageY8 (toPixel8 . toPixelBaseModel) img

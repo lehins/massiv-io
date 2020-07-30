@@ -172,21 +172,21 @@ showNetpbmCS Netpbm.PPM {ppmData} =
 
 
 
-instance Readable PBM (Image S CM.Y Bit) where
+instance Readable PBM (Image S CM.X Bit) where
   decodeWithMetadataM = decodeNetpbmImage
 instance Readable PBM (Image S (Y D65) Bit) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
 
-instance Readable (Sequence PBM) [Image S CM.Y Bit] where
+instance Readable (Sequence PBM) [Image S CM.X Bit] where
   decodeWithMetadataM = decodePPMs fromNetpbmImage
 instance Readable (Sequence PBM) [Image S (Y D65) Bit] where
   decodeWithMetadataM f = fmap (first (fmap fromImageBaseModel)) . decodeWithMetadataM f
 
 
-instance Readable PGM (Image S CM.Y Word8) where
+instance Readable PGM (Image S CM.X Word8) where
   decodeWithMetadataM = decodeNetpbmImage
-instance Readable PGM (Image S CM.Y Word16) where
+instance Readable PGM (Image S CM.X Word16) where
   decodeWithMetadataM = decodeNetpbmImage
 
 
@@ -200,9 +200,9 @@ instance Readable PGM (Image S (Y D65) Word16) where
   decodeWithMetadataM f = fmap (first fromImageBaseModel) . decodeWithMetadataM f
 
 
-instance Readable (Sequence PGM) [Image S CM.Y Word8] where
+instance Readable (Sequence PGM) [Image S CM.X Word8] where
   decodeWithMetadataM = decodePPMs fromNetpbmImage
-instance Readable (Sequence PGM) [Image S CM.Y Word16] where
+instance Readable (Sequence PGM) [Image S CM.X Word16] where
   decodeWithMetadataM = decodePPMs fromNetpbmImage
 
 
@@ -247,11 +247,11 @@ fromNetpbmImage Netpbm.PPM {..} = do
   let m = ppmHeight ppmHeader
       n = ppmWidth ppmHeader
   case ppmData of
-    PbmPixelData v      -> do Refl <- eqT :: Maybe (Pixel cs e :~: Pixel CM.Y Bit)
+    PbmPixelData v      -> do Refl <- eqT :: Maybe (Pixel cs e :~: Pixel CM.X Bit)
                               fromNetpbmImageUnsafe m n v
-    PgmPixelData8 v     -> do Refl <- eqT :: Maybe (Pixel cs e :~: Pixel CM.Y Word8)
+    PgmPixelData8 v     -> do Refl <- eqT :: Maybe (Pixel cs e :~: Pixel CM.X Word8)
                               fromNetpbmImageUnsafe m n v
-    PgmPixelData16 v    -> do Refl <- eqT :: Maybe (Pixel cs e :~: Pixel CM.Y Word16)
+    PgmPixelData16 v    -> do Refl <- eqT :: Maybe (Pixel cs e :~: Pixel CM.X Word16)
                               fromNetpbmImageUnsafe m n v
     PpmPixelDataRGB8 v  -> do Refl <- eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Word8)
                               fromNetpbmImageUnsafe m n v

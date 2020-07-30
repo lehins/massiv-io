@@ -4,7 +4,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 -- |
 -- Module      : Data.Massiv.Array.IO.Image
 -- Copyright   : (c) Alexey Kuleshevich 2018-2020

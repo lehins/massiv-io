@@ -53,7 +53,7 @@ instance FileFormat TGA where
   type Metadata TGA = JP.Metadatas
   ext _ = ".tga"
 
-instance Writable TGA (Image S CM.Y Word8) where
+instance Writable TGA (Image S CM.X Word8) where
   encodeM TGA _ img = pure $ JP.encodeTga (toJPImageY8 img)
 
 instance Writable TGA (Image S CM.RGB Word8) where
@@ -81,7 +81,7 @@ instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel 
   encodeM f _ = pure . encodeAutoTGA f
 
 
-instance Readable TGA (Image S CM.Y Word8) where
+instance Readable TGA (Image S CM.X Word8) where
   decodeWithMetadataM = decodeWithMetadataTGA
 
 instance Readable TGA (Image S CM.RGB Word8) where
@@ -162,7 +162,7 @@ encodeAutoTGA ::
 encodeAutoTGA _ img =
   fromMaybe (toTga toJPImageRGB8 toSRGB8 img) $
   msum
-    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.Y)
+    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Bit)
                 pure $ toTga toJPImageY8 (toPixel8 . toPixelBaseModel) img

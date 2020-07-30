@@ -60,22 +60,22 @@ instance FileFormat TIF where
   ext _ = ".tif"
   exts _ = [".tif", ".tiff"]
 
-instance Writable TIF (Image S CM.Y Word8) where
+instance Writable TIF (Image S CM.X Word8) where
   encodeM TIF _ img = pure $ JP.encodeTiff (toJPImageY8 img)
 
-instance Writable TIF (Image S CM.Y Word16) where
+instance Writable TIF (Image S CM.X Word16) where
   encodeM TIF _ img = pure $ JP.encodeTiff (toJPImageY16 img)
 
-instance Writable TIF (Image S CM.Y Word32) where
+instance Writable TIF (Image S CM.X Word32) where
   encodeM TIF _ img = pure $ JP.encodeTiff (toJPImageY32 img)
 
-instance Writable TIF (Image S CM.Y Float) where
+instance Writable TIF (Image S CM.X Float) where
   encodeM TIF _ img = pure $ JP.encodeTiff (toJPImageYF img)
 
-instance Writable TIF (Image S (Alpha CM.Y) Word8) where
+instance Writable TIF (Image S (Alpha CM.X) Word8) where
   encodeM TIF _ img = pure $ JP.encodeTiff (toJPImageYA8 img)
 
-instance Writable TIF (Image S (Alpha CM.Y) Word16) where
+instance Writable TIF (Image S (Alpha CM.X) Word16) where
   encodeM TIF _ img = pure $ JP.encodeTiff (toJPImageYA16 img)
 
 instance Writable TIF (Image S CM.RGB Word8) where
@@ -161,22 +161,22 @@ instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel 
   encodeM f _ = pure . encodeAutoTIF f
 
 
-instance Readable TIF (Image S CM.Y Word8) where
+instance Readable TIF (Image S CM.X Word8) where
   decodeWithMetadataM = decodeWithMetadataTIF
 
-instance Readable TIF (Image S CM.Y Word16) where
+instance Readable TIF (Image S CM.X Word16) where
   decodeWithMetadataM = decodeWithMetadataTIF
 
-instance Readable TIF (Image S CM.Y Word32) where
+instance Readable TIF (Image S CM.X Word32) where
   decodeWithMetadataM = decodeWithMetadataTIF
 
-instance Readable TIF (Image S CM.Y Float) where
+instance Readable TIF (Image S CM.X Float) where
   decodeWithMetadataM = decodeWithMetadataTIF
 
-instance Readable TIF (Image S (Alpha CM.Y) Word8) where
+instance Readable TIF (Image S (Alpha CM.X) Word8) where
   decodeWithMetadataM = decodeWithMetadataTIF
 
-instance Readable TIF (Image S (Alpha CM.Y) Word16) where
+instance Readable TIF (Image S (Alpha CM.X) Word16) where
   decodeWithMetadataM = decodeWithMetadataTIF
 
 instance Readable TIF (Image S CM.RGB Word8) where
@@ -327,7 +327,7 @@ encodeAutoTIF ::
 encodeAutoTIF _ img =
   fromMaybe (toTiff toJPImageRGB8 toSRGB8 img) $
   msum
-    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.Y)
+    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Bit)
                 pure $ toTiff toJPImageY8 (toPixel8 . toPixelBaseModel) img
@@ -341,7 +341,7 @@ encodeAutoTIF _ img =
                 pure $ toTiff toJPImageYF toPixelBaseModel img
            , pure $ toTiff toJPImageY16 (toPixel16 . toPixelBaseModel) img
            ]
-    , do Refl <- eqT :: Maybe (BaseModel cs :~: Alpha CM.Y)
+    , do Refl <- eqT :: Maybe (BaseModel cs :~: Alpha CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Word8)
                 pure $ toTiff toJPImageYA8 toPixelBaseModel img
