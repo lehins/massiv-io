@@ -6,4 +6,4 @@ extra-package-dbs: []
 extra-deps:
 # - massiv-0.5.2.0
 # - massiv-0.1.3
-#- Color-0.3.0@sha256:6a0effd159b37938098533144f8558068fa9ccd5a25bfe00e96463626ceda709,8157
+- Color-0.3.0@sha256:6a0effd159b37938098533144f8558068fa9ccd5a25bfe00e96463626ceda709,8157
