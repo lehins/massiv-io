@@ -355,7 +355,7 @@ precision for reading and writing without any conversion:
 
 * 'BMP':
 
-    * __read__: ('PixelY' 'Word8'), ('PixelRGB' 'Word8'), ('PixelRGBA' 'Word8')
+    * __read__: ('PixelX' 'Bit'), ('PixelY' 'Word8'), ('PixelRGB' 'Word8'), ('PixelRGBA' 'Word8')
     * __write__: ('PixelY' 'Word8'), ('PixelRGB' 'Word8'), ('PixelRGBA' 'Word8')
 
 * 'GIF':
@@ -378,14 +378,14 @@ precision for reading and writing without any conversion:
 
 * 'PNG':
 
-    * __read__: ('PixelY' 'Word8'), ('PixelY' 'Word16'), ('PixelYA' 'Word8'), ('PixelYA' 'Word16'),
+    * __read__: ('PixelX' 'Bit'), ('PixelY' 'Word8'), ('PixelY' 'Word16'), ('PixelYA' 'Word8'), ('PixelYA' 'Word16'),
     ('PixelRGB' 'Word8'), ('PixelRGB' 'Word16'), ('PixelRGBA' 'Word8'), ('PixelRGBA' 'Word16')
     * __write__: ('PixelY' 'Word8'), ('PixelY' 'Word16'), ('PixelYA' 'Word8'), ('PixelYA' 'Word16'),
     ('PixelRGB' 'Word8'), ('PixelRGB' 'Word16'), ('PixelRGBA' 'Word8'), ('PixelRGBA' 'Word16')
 
 * 'TGA':
 
-    * __read__: ('PixelY' 'Word8'), ('PixelRGB' 'Word8'), ('PixelRGBA' 'Word8')
+    * __read__: ('PixelX' 'Bit'), ('PixelY' 'Word8'), ('PixelRGB' 'Word8'), ('PixelRGBA' 'Word8')
     * __write__: ('PixelY' 'Word8'), ('PixelRGB' 'Word8'), ('PixelRGBA' 'Word8')
 
 * 'TIF':
@@ -404,16 +404,16 @@ precision for reading and writing without any conversion:
 * 'PBM':
 
     * __read__: ('PixelY' 'Bit')
-    * Also supports sequence of images in one file, when read as @['PBM']@
+    * Also supports `Sequence` of images in one file, when read as @['PBM']@
 
 * 'PGM':
 
     * __read__: ('PixelY' 'Word8'), ('PixelY' 'Word16')
-    * Also supports sequence of images in one file, when read as @['PGM']@
+    * Also supports `Sequence` of images in one file, when read as @['PGM']@
 
 * 'PPM':
 
     * __read__: ('PixelRGB' 'Word8'), ('PixelRGB' 'Word16')
-    * Also supports sequence of images in one file, when read as @['PPM']@
+    * Also supports `Sequence` of images in one file, when read as @['PPM']@
 
 -}

@@ -140,19 +140,16 @@ convertAutoSequenceWith _ ejpImgs = do
   jpImgs <- decodeError ejpImgs
   P.traverse fromDynamicImageAuto jpImgs
 
-fromJPImageM ::
-     (Storable (Color cs e), Storable e, JP.Pixel px, MonadThrow m)
-  => JP.Image px
-  -> Maybe (Pixel cs e :~: Pixel cs' e')
-  -> m (Maybe (Image S cs e))
-fromJPImageM jimg = P.mapM $ \Refl -> fromJPImageUnsafeM jimg
 
-sequenceMaybe :: Monad m => [m (Maybe a)] -> m (Maybe a)
-sequenceMaybe [] = pure Nothing
-sequenceMaybe (x:xs) =
-  x >>= \case
-    Nothing -> sequenceMaybe xs
-    ma -> pure ma
+-- | We need to flip the bit because pictorally white is zero, while black is one. However
+-- to be more general it is better to threshold at 50% instead of pattern matching on 0.
+toBitImage :: Image S CM.X Word8 -> Image S CM.X Bit
+toBitImage = A.compute . A.map (fmap toBit)
+  where
+    toBit x
+      | x < 0x80 = one
+      | otherwise = zero
+
 
 fromDynamicImageM ::
      forall cs e m. (ColorModel cs e, MonadThrow m)
@@ -160,90 +157,92 @@ fromDynamicImageM ::
   -> m (Maybe (Image S cs e))
 fromDynamicImageM jpDynImg =
   case jpDynImg of
-    JP.ImageY8 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Word8))
-        ]
-    JP.ImageY16 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Word16))
-        ]
-    JP.ImageY32 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Word32))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Word32))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Word32))
-        ]
-    JP.ImageYF jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Float))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Float))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Float))
-        ]
-    JP.ImageYA8 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.X) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y' SRGB)) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y D65)) Word8))
-        ]
-    JP.ImageYA16 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.X) Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y' SRGB)) Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y D65)) Word16))
-        ]
-    JP.ImageRGB8 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (SRGB 'NonLinear) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (AdobeRGB 'NonLinear) Word8))
-        ]
-    JP.ImageRGB16 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (SRGB 'NonLinear) Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (AdobeRGB 'NonLinear) Word16))
-        ]
-    JP.ImageRGBF jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Float))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (SRGB 'NonLinear) Float))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (AdobeRGB 'NonLinear) Float))
-        ]
-    JP.ImageRGBA8 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.RGB) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (SRGB 'NonLinear)) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (AdobeRGB 'NonLinear)) Word8))
-        ]
-    JP.ImageRGBA16 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.RGB) Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (SRGB 'NonLinear)) Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (AdobeRGB 'NonLinear)) Word16))
-        ]
-    JP.ImageYCbCr8 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.YCbCr Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y'CbCr SRGB) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (Y'CbCr AdobeRGB) Word8))
-        ]
-    JP.ImageCMYK8 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.CMYK Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (SRGB 'NonLinear)) Word8))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (AdobeRGB 'NonLinear)) Word8))
-        ]
-    JP.ImageCMYK16 jimg ->
-      sequenceMaybe
-        [ fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel CM.CMYK Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (SRGB 'NonLinear)) Word16))
-        , fromJPImageM jimg (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (AdobeRGB 'NonLinear)) Word16))
-        ]
+    JP.ImageY8 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Word8)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Word8)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Word8)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Bit)) ->
+        Just . toBitImage <$> fromJPImageUnsafeM jimg
+      | otherwise -> pure Nothing
+    JP.ImageY16 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Word16)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Word16)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Word16)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageY32 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Word32)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Word32)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Word32)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageYF jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Float)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Float)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Float)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageYA8 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y' SRGB)) Word8)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y D65)) Word8)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.X) Word8)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageYA16 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y' SRGB)) Word16)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (Y D65)) Word16)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.X) Word16)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageRGB8 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (SRGB 'NonLinear) Word8)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (AdobeRGB 'NonLinear) Word8)) ->
+        justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Word8)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageRGB16 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (SRGB 'NonLinear) Word16)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (AdobeRGB 'NonLinear) Word16)) ->
+        justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Word16)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageRGBF jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (SRGB 'NonLinear) Float)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (AdobeRGB 'NonLinear) Float)) ->
+        justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Float)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageRGBA8 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (SRGB 'NonLinear)) Word8)) ->
+        justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (AdobeRGB 'NonLinear)) Word8)) ->
+        justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.RGB) Word8)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageRGBA16 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (SRGB 'NonLinear)) Word16)) ->
+        justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha (AdobeRGB 'NonLinear)) Word16)) ->
+        justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Alpha CM.RGB) Word16)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageYCbCr8 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y'CbCr SRGB) Word8)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y'CbCr AdobeRGB) Word8)) -> justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.YCbCr Word8)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageCMYK8 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (SRGB 'NonLinear)) Word8)) ->
+        justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (AdobeRGB 'NonLinear)) Word8)) ->
+        justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.CMYK Word8)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+    JP.ImageCMYK16 jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (SRGB 'NonLinear)) Word16)) ->
+        justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (CMYK (AdobeRGB 'NonLinear)) Word16)) ->
+        justFromJP jimg
+      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.CMYK Word16)) -> justFromJP jimg
+      | otherwise -> pure Nothing
+  where
+    justFromJP :: JP.Pixel px => JP.Image px -> m (Maybe (Image S cs e))
+    justFromJP = fmap Just . fromJPImageUnsafeM
 
 fromDynamicImage ::
      forall cs e. ColorModel cs e
@@ -645,7 +644,7 @@ fromJPImageUnsafeM (JP.Image n m !v) = do
   unless (numComponentsPerPixel == numberOfComponentsFromSize) $
     throwM $ ConvertError $
     concat
-      [ "Mismatched sizes beteen JuicyPixels: "
+      [ "Mismatched sizes between JuicyPixels: "
       , show numComponentsPerPixel
       , " and massiv: "
       , show numberOfComponentsFromSize

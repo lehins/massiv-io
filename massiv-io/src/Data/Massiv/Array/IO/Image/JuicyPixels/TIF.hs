@@ -161,6 +161,9 @@ instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel 
   encodeM f _ = pure . encodeAutoTIF f
 
 
+instance Readable TIF (Image S CM.X Bit) where
+  decodeWithMetadataM = decodeWithMetadataTIF
+
 instance Readable TIF (Image S CM.X Word8) where
   decodeWithMetadataM = decodeWithMetadataTIF
 
