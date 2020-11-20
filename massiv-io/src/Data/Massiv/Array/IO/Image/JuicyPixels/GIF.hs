@@ -171,13 +171,13 @@ encodeGIF f opts img =
       \case
         Just bs -> pure bs
         Nothing
-          | Just Refl <- (eqT :: Maybe (e :~: Word8))
-          , Just Refl <- (eqT :: Maybe (cs :~: CM.RGB)) -> encodePalettizedRGB opts img
-          | Just Refl <- (eqT :: Maybe (e :~: Word8))
-          , Just Refl <- (eqT :: Maybe (cs :~: SRGB 'NonLinear)) ->
+          | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel X Bit)) ->
+            encodeM f opts img
+          | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Word8)) ->
+            encodePalettizedRGB opts img
+          | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (SRGB 'NonLinear) Word8)) ->
             encodePalettizedRGB opts $ toImageBaseModel img
-          | Just Refl <- (eqT :: Maybe (e :~: Word8))
-          , Just Refl <- (eqT :: Maybe (cs :~: AdobeRGB 'NonLinear)) ->
+          | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (AdobeRGB 'NonLinear) Word8)) ->
             encodePalettizedRGB opts $ toImageBaseModel img
         Nothing -> fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) Nothing
 

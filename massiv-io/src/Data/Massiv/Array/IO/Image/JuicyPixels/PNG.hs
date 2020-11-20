@@ -218,25 +218,25 @@ encodePNG ::
   => PNG
   -> Image S cs e
   -> m BL.ByteString
-encodePNG f img =
-  fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) $
-  msum
-    [ do Refl <- eqT :: Maybe (e :~: Word8)
-         msum
-           [ JP.encodePng <$> maybeJPImageY8 img
-           , JP.encodePng <$> maybeJPImageRGB8 img
-           , do Refl <- eqT :: Maybe (cs :~: Alpha (Opaque cs))
-                msum [JP.encodePng <$> maybeJPImageYA8 img, JP.encodePng <$> maybeJPImageRGBA8 img]
-           ]
-    , do Refl <- eqT :: Maybe (e :~: Word16)
-         msum
-           [ JP.encodePng <$> maybeJPImageY16 img
-           , JP.encodePng <$> maybeJPImageRGB16 img
-           , do Refl <- eqT :: Maybe (cs :~: Alpha (Opaque cs))
-                msum
-                  [JP.encodePng <$> maybeJPImageYA16 img, JP.encodePng <$> maybeJPImageRGBA16 img]
-           ]
-    ]
+encodePNG f img = fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) encoded
+  where
+    encoded
+      | Just Refl <- eqT :: Maybe (Pixel cs e :~: Pixel X Bit) = encodeM PNG () img
+      | Just Refl <- eqT :: Maybe (e :~: Word8) =
+        msum
+          [ JP.encodePng <$> maybeJPImageY8 img
+          , JP.encodePng <$> maybeJPImageRGB8 img
+          , do Refl <- eqT :: Maybe (cs :~: Alpha (Opaque cs))
+               msum [JP.encodePng <$> maybeJPImageYA8 img, JP.encodePng <$> maybeJPImageRGBA8 img]
+          ]
+      | Just Refl <- eqT :: Maybe (e :~: Word16) =
+        msum
+          [ JP.encodePng <$> maybeJPImageY16 img
+          , JP.encodePng <$> maybeJPImageRGB16 img
+          , do Refl <- eqT :: Maybe (cs :~: Alpha (Opaque cs))
+               msum [JP.encodePng <$> maybeJPImageYA16 img, JP.encodePng <$> maybeJPImageRGBA16 img]
+          ]
+      | otherwise = Nothing
 
 
 encodeAutoPNG ::

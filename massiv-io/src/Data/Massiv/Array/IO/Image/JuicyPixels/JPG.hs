@@ -180,16 +180,22 @@ encodeJPG ::
   -> JpegOptions
   -> Image S cs e
   -> m BL.ByteString
-encodeJPG f JpegOptions {jpegQuality, jpegMetadata} img =
-  fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) $ do
-    Refl <- eqT :: Maybe (e :~: Word8)
-    msum
-      [ JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata <$> maybeJPImageY8 img
-      , JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata <$> maybeJPImageRGB8 img
-      , JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata <$> maybeJPImageYCbCr8 img
-      , JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata <$> maybeJPImageCMYK8 img
-      ]
-
+encodeJPG f opts@JpegOptions {jpegQuality, jpegMetadata} img =
+  fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) encoded
+  where
+    encoded
+      | Just Refl <- eqT :: Maybe (Pixel cs e :~: Pixel X Bit) = encodeM JPG opts img
+      | Just Refl <- eqT :: Maybe (e :~: Word8) =
+        msum
+          [ JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata <$> maybeJPImageY8 img
+          , JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata <$>
+            maybeJPImageRGB8 img
+          , JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata <$>
+            maybeJPImageYCbCr8 img
+          , JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata <$>
+            maybeJPImageCMYK8 img
+          ]
+      | otherwise = Nothing
 
 
 encodeAutoJPG ::

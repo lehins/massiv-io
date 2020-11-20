@@ -142,16 +142,18 @@ encodeTGA ::
   => TGA
   -> Image S cs e
   -> m BL.ByteString
-encodeTGA f img =
-  fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) $ do
-    Refl <- eqT :: Maybe (e :~: Word8)
-    msum
-      [ JP.encodeTga <$> maybeJPImageY8 img
-      , JP.encodeTga <$> maybeJPImageRGB8 img
-      , do Refl <- eqT :: Maybe (cs :~: Alpha (Opaque cs))
-           JP.encodeTga <$> maybeJPImageRGBA8 img
-      ]
-
+encodeTGA f img = fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) encoded
+  where
+    encoded
+      | Just Refl <- eqT :: Maybe (Pixel cs e :~: Pixel X Bit) = encodeM TGA def img
+      | Just Refl <- eqT :: Maybe (e :~: Word8) = do
+        msum
+          [ JP.encodeTga <$> maybeJPImageY8 img
+          , JP.encodeTga <$> maybeJPImageRGB8 img
+          , do Refl <- eqT :: Maybe (cs :~: Alpha (Opaque cs))
+               JP.encodeTga <$> maybeJPImageRGBA8 img
+          ]
+      | otherwise = Nothing
 
 encodeAutoTGA ::
      forall r cs i e.

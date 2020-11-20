@@ -69,19 +69,20 @@ import Data.Massiv.Array.Manifest.Vector
 #endif
 type Image r cs e = A.Array r A.Ix2 (Pixel cs e)
 
--- | Conversion error, which is thrown when there is a mismatch between the
--- expected array type and the one supported by the file format. It is also
--- thrown upon a failure of automatic conversion between those types, in case
--- such conversion is utilized.
+-- | Conversion error, which is thrown when there is a mismatch between the expected array
+-- type and the one supported by the file format. It is also thrown upon a failure of
+-- automatic conversion between those types, in case when such conversion is utilized.
 newtype ConvertError = ConvertError String deriving Show
 
-instance Exception ConvertError
+instance Exception ConvertError where
+  displayException (ConvertError str) = "ConvertError: " ++ str
 
 -- | This exception can be thrown while reading/decoding a file and indicates an
 -- error in the file itself.
 newtype DecodeError = DecodeError String deriving Show
 
-instance Exception DecodeError
+instance Exception DecodeError where
+  displayException (DecodeError str) = "DecodeError: " ++ str
 
 -- | This exception can be thrown while writing/encoding into a file and
 -- indicates an error in an array that is being encoded.

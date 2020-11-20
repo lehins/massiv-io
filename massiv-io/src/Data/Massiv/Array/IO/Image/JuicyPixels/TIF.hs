@@ -292,33 +292,31 @@ encodeTIF ::
   => TIF
   -> Image S cs e
   -> m BL.ByteString
-encodeTIF f img =
-  fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) $
-  msum
-    [ do Refl <- eqT :: Maybe (e :~: Word8)
-         msum
-           [ JP.encodeTiff <$> maybeJPImageY8 img
-           , JP.encodeTiff <$> maybeJPImageRGB8 img
-           , do Refl <- eqT :: Maybe (cs :~: Alpha (Opaque cs))
-                msum
-                  [JP.encodeTiff <$> maybeJPImageYA8 img, JP.encodeTiff <$> maybeJPImageRGBA8 img]
-           , JP.encodeTiff <$> maybeJPImageYCbCr8 img
-           , JP.encodeTiff <$> maybeJPImageCMYK8 img
-           ]
-    , do Refl <- eqT :: Maybe (e :~: Word16)
-         msum
-           [ JP.encodeTiff <$> maybeJPImageY16 img
-           , JP.encodeTiff <$> maybeJPImageRGB16 img
-           , do Refl <- eqT :: Maybe (cs :~: Alpha (Opaque cs))
-                msum
-                  [JP.encodeTiff <$> maybeJPImageYA16 img, JP.encodeTiff <$> maybeJPImageRGBA16 img]
-           , JP.encodeTiff <$> maybeJPImageCMYK16 img
-           ]
-    , do Refl <- eqT :: Maybe (e :~: Word32)
-         JP.encodeTiff <$> maybeJPImageY32 img
-    , do Refl <- eqT :: Maybe (e :~: Float)
-         JP.encodeTiff <$> maybeJPImageYF img
-    ]
+encodeTIF f img = fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) encoded
+  where
+    encoded
+      | Just Refl <- eqT :: Maybe (Pixel cs e :~: Pixel X Bit) = encodeM TIF def img
+      | Just Refl <- eqT :: Maybe (e :~: Word8) =
+        msum
+          [ JP.encodeTiff <$> maybeJPImageY8 img
+          , JP.encodeTiff <$> maybeJPImageRGB8 img
+          , do Refl <- eqT :: Maybe (cs :~: Alpha (Opaque cs))
+               msum [JP.encodeTiff <$> maybeJPImageYA8 img, JP.encodeTiff <$> maybeJPImageRGBA8 img]
+          , JP.encodeTiff <$> maybeJPImageYCbCr8 img
+          , JP.encodeTiff <$> maybeJPImageCMYK8 img
+          ]
+      | Just Refl <- eqT :: Maybe (e :~: Word16) =
+        msum
+          [ JP.encodeTiff <$> maybeJPImageY16 img
+          , JP.encodeTiff <$> maybeJPImageRGB16 img
+          , do Refl <- eqT :: Maybe (cs :~: Alpha (Opaque cs))
+               msum
+                 [JP.encodeTiff <$> maybeJPImageYA16 img, JP.encodeTiff <$> maybeJPImageRGBA16 img]
+          , JP.encodeTiff <$> maybeJPImageCMYK16 img
+          ]
+      | Just Refl <- eqT :: Maybe (e :~: Word32) = JP.encodeTiff <$> maybeJPImageY32 img
+      | Just Refl <- eqT :: Maybe (e :~: Float) = JP.encodeTiff <$> maybeJPImageYF img
+      | otherwise = Nothing
 
 
 
