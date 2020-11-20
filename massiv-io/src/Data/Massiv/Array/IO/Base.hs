@@ -163,8 +163,6 @@ class FileFormat f => Writable f arr where
   -- @since 0.2.0
   encodeM :: MonadThrow m => f -> WriteOptions f -> arr -> m BL.ByteString
 
-instance (FileFormat f, Writable f (Image A.S CM.X Word8)) => Writable f (Image A.S CM.X Bit) where
-  encodeM f opts img = encodeM f opts (coerceBinaryImage img)
 
 -- | Helper function to create a `Proxy` from the value.
 toProxy :: a -> Proxy a

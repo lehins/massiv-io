@@ -62,6 +62,9 @@ instance FileFormat BMP where
 
   ext _ = ".bmp"
 
+instance Writable BMP (Image A.S CM.X Bit) where
+  encodeM f opts img = encodeM f opts (coerceBinaryImage img)
+
 instance Writable BMP (Image S CM.X Word8) where
   encodeM BMP BitmapOptions {bitmapMetadata} =
     pure . JP.encodeBitmapWithMetadata bitmapMetadata . toJPImageY8

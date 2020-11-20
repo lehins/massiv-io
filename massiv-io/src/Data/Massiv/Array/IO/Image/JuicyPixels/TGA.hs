@@ -53,6 +53,9 @@ instance FileFormat TGA where
   type Metadata TGA = JP.Metadatas
   ext _ = ".tga"
 
+instance Writable TGA (Image A.S CM.X Bit) where
+  encodeM f opts img = encodeM f opts (coerceBinaryImage img)
+
 instance Writable TGA (Image S CM.X Word8) where
   encodeM TGA _ img = pure $ JP.encodeTga (toJPImageY8 img)
 

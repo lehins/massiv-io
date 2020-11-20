@@ -60,6 +60,9 @@ instance FileFormat TIF where
   ext _ = ".tif"
   exts _ = [".tif", ".tiff"]
 
+instance Writable TIF (Image A.S CM.X Bit) where
+  encodeM f opts img = encodeM f opts (coerceBinaryImage img)
+
 instance Writable TIF (Image S CM.X Word8) where
   encodeM TIF _ img = pure $ JP.encodeTiff (toJPImageY8 img)
 

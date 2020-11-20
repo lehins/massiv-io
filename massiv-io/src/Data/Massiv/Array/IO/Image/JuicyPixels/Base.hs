@@ -141,18 +141,6 @@ convertAutoSequenceWith _ ejpImgs = do
   P.traverse fromDynamicImageAuto jpImgs
 
 
-
--- | We need to flip the bit because pictorially white is zero.
-fromBitImage ::
-     (ColorModel cs Word8, Source r Ix2 (Pixel CM.X Bit)) => Image r CM.X Bit -> Image D cs Word8
-fromBitImage = A.map fromBit
-  where
-    xone = pure one
-    fromBit x
-      | x == xone = pure minValue
-      | otherwise = pure maxValue
-
-
 fromDynamicImageM ::
      forall cs e m. (ColorModel cs e, MonadThrow m)
   => JP.DynamicImage

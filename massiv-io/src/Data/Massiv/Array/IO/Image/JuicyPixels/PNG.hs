@@ -52,6 +52,9 @@ instance FileFormat PNG where
   type Metadata PNG = JP.Metadatas
   ext _ = ".png"
 
+instance Writable PNG (Image A.S CM.X Bit) where
+  encodeM f opts img = encodeM f opts (coerceBinaryImage img)
+
 instance Writable PNG (Image S CM.X Word8) where
   encodeM PNG _ img = pure $ JP.encodePng (toJPImageY8 img)
 

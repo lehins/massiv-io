@@ -67,6 +67,9 @@ instance FileFormat JPG where
   ext _ = ".jpg"
   exts _ = [".jpg", ".jpeg"]
 
+instance Writable JPG (Image A.S CM.X Bit) where
+  encodeM f opts img = encodeM f opts (coerceBinaryImage img)
+
 instance Writable JPG (Image S CM.X Word8) where
   encodeM JPG JpegOptions {jpegQuality, jpegMetadata} =
     pure . JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata . toJPImageY8

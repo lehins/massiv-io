@@ -76,6 +76,9 @@ instance FileFormat GIF where
   type Metadata GIF = JP.Metadatas
   ext _ = ".gif"
 
+instance Writable GIF (Image A.S CM.X Bit) where
+  encodeM f opts img = encodeM f opts (coerceBinaryImage img)
+
 instance Writable GIF (Image S CM.X Word8) where
   encodeM GIF _ =  pure . JP.encodeGifImage . toJPImageY8
 
@@ -270,6 +273,8 @@ decodeSeqMetadata decode f bs = do
   delays <- decodeError $ JP.getDelaysGifImages bs
   pure (imgs, delays)
 
+instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S CM.X Bit)) where
+  encodeM f opts imgs = encodeM f opts (fmap (fmap coerceBinaryImage) imgs)
 
 instance Writable (Sequence GIF) (NE.NonEmpty (JP.GifDelay, Image S CM.X Word8)) where
   encodeM _ SequenceGifOptions {sequenceGifLooping} gifs =
