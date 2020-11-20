@@ -6,6 +6,7 @@
 * Add `displayImageUsingAdhoc`
 * Add `coerceBinaryImage`
 * Add instance for writing binary images: `Image S X Bit` without conversions.
+* Add `selectFileFormat`
 
 # 0.4.0
 

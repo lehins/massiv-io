@@ -19,6 +19,7 @@
 --
 module Data.Massiv.Array.IO.Base
   ( FileFormat(..)
+  , selectFileFormat
   , Readable(..)
   , decode'
   , Writable(..)
@@ -53,12 +54,15 @@ import Control.Exception (Exception, throw)
 import Control.Monad.Catch (MonadThrow(..))
 import qualified Data.ByteString as B (ByteString)
 import qualified Data.ByteString.Lazy as BL (ByteString)
+import Data.Char (toLower)
 import Data.Default.Class (Default(..))
 import qualified Data.Massiv.Array as A
 import Data.Typeable
 import qualified Data.Vector.Storable as V
 import Graphics.Pixel as CM
 import Graphics.Pixel.ColorSpace
+import Prelude as P
+import System.FilePath (takeExtension)
 import Unsafe.Coerce
 #if !MIN_VERSION_massiv(0,5,0)
 import Data.Massiv.Array.Manifest.Vector
@@ -125,6 +129,17 @@ instance FileFormat f => FileFormat (Auto f) where
 
   ext (Auto f) = ext f
   exts (Auto f) = exts f
+
+-- | Try to select a file format by looking at the file extension and matching it to one
+-- of the formats in the list
+--
+-- @since 0.4.1
+selectFileFormat :: (FileFormat f, MonadThrow m) => [f] -> FilePath -> m f
+selectFileFormat formats path = do
+  let ext' = P.map toLower . takeExtension $ path
+  case P.dropWhile (not . isFormat ext') formats of
+    []    -> throwM $ EncodeError $ "File format is not supported: " ++ ext'
+    (f:_) -> pure f
 
 
 -- | File formats that can be read into arrays.

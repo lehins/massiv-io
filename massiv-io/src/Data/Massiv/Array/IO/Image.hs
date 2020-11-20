@@ -16,6 +16,7 @@ module Data.Massiv.Array.IO.Image
   ( module Data.Massiv.Array.IO.Image.JuicyPixels
   , module Data.Massiv.Array.IO.Image.Netpbm
   -- ** Helper image functions
+  , selectFileFormat
   , Encode(..)
   , encodeImageM
   , encodeAdhocM
@@ -32,14 +33,12 @@ module Data.Massiv.Array.IO.Image
 
 import qualified Data.ByteString as B (ByteString)
 import qualified Data.ByteString.Lazy as BL (ByteString)
-import Data.Char (toLower)
 import Data.Massiv.Array
 import Data.Massiv.Array.IO.Base
 import Data.Massiv.Array.IO.Image.JuicyPixels
 import Data.Massiv.Array.IO.Image.Netpbm
 import Graphics.Pixel.ColorSpace
 import Prelude as P
-import System.FilePath (takeExtension)
 
 
 
@@ -88,23 +87,20 @@ encodeImageM
   -> Image r cs e -- ^ Image to encode
   -> m BL.ByteString
 encodeImageM formats path img = do
-  let ext' = P.map toLower . takeExtension $ path
-  case P.dropWhile (not . isFormat ext') formats of
-    []    -> throwM $ EncodeError $ "File format is not supported: " ++ ext'
-    (f:_) -> encodeAdhocM f img
-
+  f <- selectFileFormat formats path
+  encodeAdhocM f img
 
 
 -- | List of image formats that can be encoded without any color space conversion.
 imageWriteFormats :: (Source r Ix2 (Pixel cs e), ColorModel cs e) => [Encode (Image r cs e)]
 imageWriteFormats =
-  [ Encode BMP (\ f -> encodeBMP f def . computeSource @S)
-  , Encode GIF (\ f -> encodeGIF f def . computeSource @S)
-  , Encode HDR (\ f -> encodeHDR f def . computeSource @S)
-  , Encode JPG (\ f -> encodeJPG f def . computeSource @S)
-  , Encode PNG (\ f -> encodePNG f . computeSource @S)
-  , Encode TGA (\ f -> encodeTGA f . computeSource @S)
+  [ Encode PNG (\ f -> encodePNG f . computeSource @S)
   , Encode TIF (\ f -> encodeTIF f . computeSource @S)
+  , Encode JPG (\ f -> encodeJPG f def . computeSource @S)
+  , Encode BMP (\ f -> encodeBMP f def . computeSource @S)
+  , Encode GIF (\ f -> encodeGIF f def . computeSource @S)
+  , Encode TGA (\ f -> encodeTGA f . computeSource @S)
+  , Encode HDR (\ f -> encodeHDR f def . computeSource @S)
   ]
 
 -- | List of image formats that can be encoded with any necessary color space conversions.
@@ -112,13 +108,13 @@ imageWriteAutoFormats ::
      (Source r Ix2 (Pixel cs e), ColorSpace cs i e, ColorSpace (BaseSpace cs) i e)
   => [Encode (Image r cs e)]
 imageWriteAutoFormats =
-  [ Encode (Auto BMP) (\f -> pure . encodeAutoBMP f def)
+  [ Encode (Auto PNG) (\f -> pure . encodeAutoPNG f)
+  , Encode (Auto TIF) (\f -> pure . encodeAutoTIF f)
+  , Encode (Auto JPG) (\f -> pure . encodeAutoJPG f def)
+  , Encode (Auto BMP) (\f -> pure . encodeAutoBMP f def)
   , Encode (Auto GIF) (`encodeAutoGIF` def)
   , Encode (Auto HDR) (\f -> pure . encodeAutoHDR f def)
-  , Encode (Auto JPG) (\f -> pure . encodeAutoJPG f def)
-  , Encode (Auto PNG) (\f -> pure . encodeAutoPNG f)
   , Encode (Auto TGA) (\f -> pure . encodeAutoTGA f)
-  , Encode (Auto TIF) (\f -> pure . encodeAutoTIF f)
   ]
 
 
@@ -167,21 +163,19 @@ decodeImageM
   -> B.ByteString -- ^ Encoded image
   -> m (Image r cs e)
 decodeImageM formats path bs = do
-  let ext' = P.map toLower . takeExtension $ path
-  case P.dropWhile (not . isFormat ext') formats of
-    []    -> throwM $ DecodeError $ "File format is not supported: " ++ ext'
-    (f:_) -> decodeAdhocM f bs
+  f <- selectFileFormat formats path
+  decodeAdhocM f bs
 
 -- | List of image formats decodable with no color space conversion
 imageReadFormats :: ColorModel cs e => [Decode (Image S cs e)]
 imageReadFormats =
-  [ Decode BMP decodeBMP
+  [ Decode PNG decodePNG
+  , Decode TIF decodeTIF
+  , Decode JPG decodeJPG
+  , Decode BMP decodeBMP
   , Decode GIF decodeGIF
   , Decode HDR decodeHDR
-  , Decode JPG decodeJPG
-  , Decode PNG decodePNG
   , Decode TGA decodeTGA
-  , Decode TIF decodeTIF
   , Decode PBM (\f -> fmap fst . decodeNetpbmImage f)
   , Decode PGM (\f -> fmap fst . decodeNetpbmImage f)
   , Decode PPM (\f -> fmap fst . decodeNetpbmImage f)
@@ -192,13 +186,13 @@ imageReadAutoFormats
   :: (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e)
   => [Decode (Image r cs e)]
 imageReadAutoFormats =
-  [ Decode (Auto BMP) decodeAutoBMP
+  [ Decode (Auto PNG) decodeAutoPNG
+  , Decode (Auto TIF) decodeAutoTIF
+  , Decode (Auto JPG) decodeAutoJPG
+  , Decode (Auto BMP) decodeAutoBMP
   , Decode (Auto GIF) decodeAutoGIF
   , Decode (Auto HDR) decodeAutoHDR
-  , Decode (Auto JPG) decodeAutoJPG
-  , Decode (Auto PNG) decodeAutoPNG
   , Decode (Auto TGA) decodeAutoTGA
-  , Decode (Auto TIF) decodeAutoTIF
   , Decode (Auto PBM) (\f -> fmap fst . decodeAutoNetpbmImage f)
   , Decode (Auto PGM) (\f -> fmap fst . decodeAutoNetpbmImage f)
   , Decode (Auto PPM) (\f -> fmap fst . decodeAutoNetpbmImage f)
