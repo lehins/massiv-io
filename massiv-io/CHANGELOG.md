@@ -2,6 +2,8 @@
 
 * Expose `Encode` and `Decode` cosntructors
 * Add `encodeAdhocM` and `decodeAdhocM`
+* Add `writableAdhoc` and `readableAdhoc`
+* Add `displayImageUsingAdhoc`
 * Add `coerceBinaryImage`
 * Add instance for writing binary images: `Image S X Bit` without conversions.
 

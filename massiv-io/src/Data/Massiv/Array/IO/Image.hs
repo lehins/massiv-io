@@ -19,11 +19,13 @@ module Data.Massiv.Array.IO.Image
   , Encode(..)
   , encodeImageM
   , encodeAdhocM
+  , writableAdhoc
   , imageWriteFormats
   , imageWriteAutoFormats
   , Decode(..)
   , decodeImageM
   , decodeAdhocM
+  , readableAdhoc
   , imageReadFormats
   , imageReadAutoFormats
   ) where
@@ -66,6 +68,13 @@ instance FileFormat (Encode out) where
 -- @since 0.4.1
 encodeAdhocM :: MonadThrow m => Encode out -> out -> m BL.ByteString
 encodeAdhocM (Encode f enc) = enc f
+
+-- | Utilize a Writable instance in order to construct an adhoc Encode type
+--
+-- @since 0.4.1
+writableAdhoc :: Writable f out => f -> Encode out
+writableAdhoc f = Encode f (`encodeM` def)
+
 
 -- | Encode an image into a lazy `BL.ByteString`, while selecting the appropriate format from the
 -- file extension.
@@ -138,6 +147,13 @@ instance FileFormat (Decode (Image r cs e)) where
 -- @since 0.4.1
 decodeAdhocM :: MonadThrow m => Decode out -> B.ByteString -> m out
 decodeAdhocM (Decode f dec) = dec f
+
+
+-- | Utilize a Readable instance in order to construct an adhoc Decode type
+--
+-- @since 0.4.1
+readableAdhoc :: Readable f out => f -> Decode out
+readableAdhoc f = Decode f decodeM
 
 
 -- | Decode an image from the strict `ByteString` while inferring format the image is encoded in

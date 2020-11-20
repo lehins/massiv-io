@@ -31,6 +31,7 @@ module Data.Massiv.Array.IO
   , ExternalViewer(..)
   , displayImage
   , displayImageUsing
+  , displayImageUsingAdhoc
   , displayImageFile
   -- ** Common viewers
   , defaultViewer
@@ -68,11 +69,11 @@ import Data.Massiv.Array.IO.Image
 import Graphics.Pixel.ColorSpace
 import Prelude
 import Prelude as P hiding (readFile, writeFile)
-import System.FilePath ((</>))
+import System.FilePath ((</>), (<.>))
 import System.IO (IOMode(..), hClose, openBinaryTempFile)
 import UnliftIO.Concurrent (forkIO)
 import UnliftIO.Directory (createDirectoryIfMissing, getTemporaryDirectory)
-import UnliftIO.Exception (bracket)
+import UnliftIO.Exception (catchAny, bracket)
 import UnliftIO.IO.File
 import UnliftIO.Process (readProcess)
 
@@ -263,16 +264,37 @@ displayImageUsing ::
           -- closed. Supplying `False` is only safe in the ghci session.
   -> Image r cs e -- ^ Image to display
   -> m ()
-displayImageUsing viewer block img =
+displayImageUsing viewer block =
+  displayImageUsingAdhoc  viewer block (writableAdhoc (Auto TIF))
+
+
+-- | Encode an image using an adhoc into an operating system's temporary
+-- directory and passed as an argument to the external viewer program.
+--
+-- @since 4.1.0
+displayImageUsingAdhoc ::
+     MonadIO m
+  => ExternalViewer -- ^ Image viewer program
+  -> Bool -- ^ Should this function block the current thread until viewer is
+          -- closed. Supplying `False` is only safe in the ghci session.
+  -> Encode img
+  -> img -- ^ Image to display
+  -> m ()
+displayImageUsingAdhoc viewer block adhoc img =
   liftIO $ do
-    bs <- encodeM (Auto TIF) () img
-    (if block then id else void . forkIO) $ display bs
+    bs <- encodeAdhocM adhoc img
+    -- this function is meant to be used in ghci, therefore it is ok to not cleanup
+    -- dangling threads after display is called.
+    (if block then id else void . forkIO . reportErrors) $ display bs
   where
+    reportErrors action =
+      catchAny action $ \ exc ->
+        putStrLn $ "<displayImageUsingAdhoc>: Failed with: " <> displayException exc
     display bs = do
       tmpDir <- fmap (</> "massiv-io") getTemporaryDirectory
       createDirectoryIfMissing True tmpDir
       bracket
-        (openBinaryTempFile tmpDir "tmp-img.tiff")
+        (openBinaryTempFile tmpDir ("tmp-img" <.> ext adhoc))
         (hClose . snd)
         (\(imgPath, imgHandle) -> do
            BL.hPut imgHandle bs
