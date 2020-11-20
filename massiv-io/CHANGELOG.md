@@ -1,3 +1,10 @@
+# 0.4.1
+
+* Expose `Encode` and `Decode` cosntructors
+* Add `encodeAdhocM` and `decodeAdhocM`
+* Add `coerceBinaryImage`
+* Add instance for writing binary images: `Image S X Bit` without conversions.
+
 # 0.4.0
 
 * Adjust insatnces to account for changes in `Color-0.3.0`, namely improvements to Luma

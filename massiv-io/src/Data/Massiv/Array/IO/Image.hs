@@ -41,7 +41,12 @@ import System.FilePath (takeExtension)
 
 
 
+-- | Adhoc encoder
 data Encode out where
+  -- | Provide a custom way to encode a particular file format. This is an alternative
+  -- approach to `Writable` class
+  --
+  -- @since 0.4.1
   Encode
     :: FileFormat f
     => f
@@ -108,8 +113,12 @@ imageWriteAutoFormats =
   ]
 
 
-
+-- | Adhoc decoder
 data Decode out where
+  -- | Provide a custom way to encode a particular file format. This is an alternative
+  -- approach to `Writable` class
+  --
+  -- @since 0.4.1
   Decode
     :: FileFormat f
     => f
