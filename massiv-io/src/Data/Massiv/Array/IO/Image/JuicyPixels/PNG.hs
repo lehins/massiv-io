@@ -118,9 +118,6 @@ instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel 
   encodeM f _ = pure . encodeAutoPNG f
 
 
-instance Readable PNG (Image S CM.X Bit) where
-  decodeWithMetadataM = decodeWithMetadataPNG
-
 instance Readable PNG (Image S CM.X Word8) where
   decodeWithMetadataM = decodeWithMetadataPNG
 

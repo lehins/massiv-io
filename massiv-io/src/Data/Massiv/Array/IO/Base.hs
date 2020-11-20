@@ -32,6 +32,7 @@ module Data.Massiv.Array.IO.Base
   , convertImage
   , toImageBaseModel
   , fromImageBaseModel
+  , coerceBinaryImage
   , demoteLumaImage
   , promoteLumaImage
   , demoteLumaAlphaImage
@@ -162,6 +163,9 @@ class FileFormat f => Writable f arr where
   -- @since 0.2.0
   encodeM :: MonadThrow m => f -> WriteOptions f -> arr -> m BL.ByteString
 
+instance (FileFormat f, Writable f (Image A.S CM.X Word8)) => Writable f (Image A.S CM.X Bit) where
+  encodeM f opts img = encodeM f opts (coerceBinaryImage img)
+
 -- | Helper function to create a `Proxy` from the value.
 toProxy :: a -> Proxy a
 toProxy _ = Proxy
@@ -278,6 +282,11 @@ toImageBaseModel = unsafeCoerce
 fromImageBaseModel :: A.Array A.S A.Ix2 (Pixel (BaseModel cs) e) -> A.Array A.S A.Ix2 (Pixel cs e)
 fromImageBaseModel = unsafeCoerce
 
+-- | Convert Binary image to its Word8 backed pixel without copy
+--
+-- @since 0.4.1
+coerceBinaryImage :: A.Array A.S A.Ix2 (Pixel CM.X Bit) -> A.Array A.S A.Ix2 (Pixel CM.X Word8)
+coerceBinaryImage = unsafeCoerce
 
 -- | Cast an array with Luma pixels to an array with pixels in a plain single channel
 -- `CM.X` color model

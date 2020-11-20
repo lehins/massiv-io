@@ -141,14 +141,16 @@ convertAutoSequenceWith _ ejpImgs = do
   P.traverse fromDynamicImageAuto jpImgs
 
 
--- | We need to flip the bit because pictorally white is zero, while black is one. However
--- to be more general it is better to threshold at 50% instead of pattern matching on 0.
-toBitImage :: Image S CM.X Word8 -> Image S CM.X Bit
-toBitImage = A.compute . A.map (fmap toBit)
+
+-- | We need to flip the bit because pictorially white is zero.
+fromBitImage ::
+     (ColorModel cs Word8, Source r Ix2 (Pixel CM.X Bit)) => Image r CM.X Bit -> Image D cs Word8
+fromBitImage = A.map fromBit
   where
-    toBit x
-      | x < 0x80 = one
-      | otherwise = zero
+    xone = pure one
+    fromBit x
+      | x == xone = pure minValue
+      | otherwise = pure maxValue
 
 
 fromDynamicImageM ::
@@ -161,8 +163,6 @@ fromDynamicImageM jpDynImg =
       | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Word8)) -> justFromJP jimg
       | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y D65) Word8)) -> justFromJP jimg
       | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Word8)) -> justFromJP jimg
-      | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Bit)) ->
-        Just . toBitImage <$> fromJPImageUnsafeM jimg
       | otherwise -> pure Nothing
     JP.ImageY16 jimg
       | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel (Y' SRGB) Word16)) -> justFromJP jimg

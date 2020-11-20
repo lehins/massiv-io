@@ -91,9 +91,6 @@ instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel 
          Writable (Auto BMP) (Image r cs e) where
   encodeM f opts = pure . encodeAutoBMP f opts
 
-instance Readable BMP (Image S CM.X Bit) where
-  decodeWithMetadataM = decodeWithMetadataBMP
-
 instance Readable BMP (Image S CM.X Word8) where
   decodeWithMetadataM = decodeWithMetadataBMP
 
