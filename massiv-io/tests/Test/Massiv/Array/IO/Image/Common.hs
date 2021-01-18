@@ -6,12 +6,12 @@
 {-# LANGUAGE TypeApplications #-}
 module Test.Massiv.Array.IO.Image.Common where
 
+import qualified Data.ByteString.Lazy as BL
 import Data.List.NonEmpty as NE (NonEmpty(..))
 import Data.Massiv.Array
 import Data.Massiv.Array.IO
-import qualified Data.ByteString.Lazy as BL
-import Test.Massiv.Core
 import System.Random
+import Test.Massiv.Core
 
 
 elevatorGen :: (Random e, Elevator e) => Gen e

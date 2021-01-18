@@ -156,7 +156,7 @@ encodeBMP f opts@BitmapOptions {bitmapMetadata} img =
   fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) encoded
   where
     encoded
-      | Just Refl <- eqT :: Maybe (Pixel cs e :~: Pixel X Bit) = encodeM BMP opts img
+      | Just Refl <- eqT :: Maybe (Pixel cs e :~: Pixel CM.X Bit) = encodeM BMP opts img
       | Just Refl <- eqT :: Maybe (e :~: Word8) = do
         msum
           [ JP.encodeBitmapWithMetadata bitmapMetadata <$> maybeJPImageY8 img

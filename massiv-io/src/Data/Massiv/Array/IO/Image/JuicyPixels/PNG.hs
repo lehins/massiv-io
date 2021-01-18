@@ -221,7 +221,7 @@ encodePNG ::
 encodePNG f img = fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) encoded
   where
     encoded
-      | Just Refl <- eqT :: Maybe (Pixel cs e :~: Pixel X Bit) = encodeM PNG () img
+      | Just Refl <- eqT :: Maybe (Pixel cs e :~: Pixel CM.X Bit) = encodeM PNG () img
       | Just Refl <- eqT :: Maybe (e :~: Word8) =
         msum
           [ JP.encodePng <$> maybeJPImageY8 img

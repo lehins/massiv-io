@@ -171,7 +171,7 @@ encodeGIF f opts img =
       \case
         Just bs -> pure bs
         Nothing
-          | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel X Bit)) ->
+          | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.X Bit)) ->
             encodeM f opts img
           | Just Refl <- (eqT :: Maybe (Pixel cs e :~: Pixel CM.RGB Word8)) ->
             encodePalettizedRGB opts img
