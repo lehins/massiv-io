@@ -1,5 +1,7 @@
 # 0.4.1
 
+* Reexport `Default` class.
+* Add support for massiv-0.6
 * Expose `Encode` and `Decode` cosntructors
 * Add `encodeAdhocM` and `decodeAdhocM`
 * Add `writableAdhoc` and `readableAdhoc`
