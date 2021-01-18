@@ -43,7 +43,7 @@ matrix:
   - env: RESOLVER="nightly"
     addons: {apt: {packages: [libgmp-dev]}}
 
-  allow_failures: []
+  allow_failures:
   - env: RESOLVER="nightly"
 
 before_install:
