@@ -6,11 +6,11 @@ extra-package-dbs: []
 extra-deps:
 # - massiv-0.5.2.0
 # - massiv-0.1.3
-- github: lehins/massiv
-  commit: 8795fe2a43a906856e676cd54dd2fa304ea51afc
-  subdirs:
-    - massiv
-    - massiv-test
+# - github: lehins/massiv
+#   commit: 0a15ce17bcfdb88d76cd90ce06896f9a8c99b55c
+#   subdirs:
+#     - massiv
+#     - massiv-test
 - Color-0.3.0@sha256:6a0effd159b37938098533144f8558068fa9ccd5a25bfe00e96463626ceda709,8157
 # - github: lehins/Color
 #   commit: beb4282b4380441a8e99639a9a608e481eb18aa9
