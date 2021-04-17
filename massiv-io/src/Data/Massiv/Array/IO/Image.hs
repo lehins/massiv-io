@@ -92,7 +92,7 @@ encodeImageM formats path img = do
 
 
 -- | List of image formats that can be encoded without any color space conversion.
-imageWriteFormats :: (Source r Ix2 (Pixel cs e), ColorModel cs e) => [Encode (Image r cs e)]
+imageWriteFormats :: (Source r (Pixel cs e), ColorModel cs e) => [Encode (Image r cs e)]
 imageWriteFormats =
   [ Encode PNG (\ f -> encodePNG f . computeSource @S)
   , Encode TIF (\ f -> encodeTIF f . computeSource @S)
@@ -105,7 +105,7 @@ imageWriteFormats =
 
 -- | List of image formats that can be encoded with any necessary color space conversions.
 imageWriteAutoFormats ::
-     (Source r Ix2 (Pixel cs e), ColorSpace cs i e, ColorSpace (BaseSpace cs) i e)
+     (Source r (Pixel cs e), ColorSpace cs i e, ColorSpace (BaseSpace cs) i e)
   => [Encode (Image r cs e)]
 imageWriteAutoFormats =
   [ Encode (Auto PNG) (\f -> pure . encodeAutoPNG f)
@@ -183,7 +183,7 @@ imageReadFormats =
 
 -- | List of image formats decodable with automatic colorspace conversion
 imageReadAutoFormats
-  :: (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e)
+  :: (Mutable r (Pixel cs e), ColorSpace cs i e)
   => [Decode (Image r cs e)]
 imageReadAutoFormats =
   [ Decode (Auto PNG) decodeAutoPNG

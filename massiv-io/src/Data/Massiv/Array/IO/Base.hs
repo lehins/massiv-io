@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DefaultSignatures #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -35,10 +34,6 @@ module Data.Massiv.Array.IO.Base
   , toImageBaseModel
   , fromImageBaseModel
   , coerceBinaryImage
-  , demoteLumaImage
-  , promoteLumaImage
-  , demoteLumaAlphaImage
-  , promoteLumaAlphaImage
   , defaultWriteOptions
   , encodeError
   , decodeError
@@ -65,10 +60,8 @@ import Graphics.Pixel.ColorSpace
 import Prelude as P
 import System.FilePath (takeExtension)
 import Unsafe.Coerce
-#if !MIN_VERSION_massiv(0,5,0)
-import Data.Massiv.Array.Manifest.Vector
-#endif
-type Image r cs e = A.Array r A.Ix2 (Pixel cs e)
+
+type Image r cs e = A.Matrix r (Pixel cs e)
 
 -- | Conversion error, which is thrown when there is a mismatch between the expected array
 -- type and the one supported by the file format. It is also thrown upon a failure of
@@ -277,7 +270,7 @@ decodeError = either (throwM . DecodeError) pure
 --
 -- @since 0.2.0
 convertImage ::
-     (A.Source r' A.Ix2 (Pixel cs' e'), ColorSpace cs' i' e', ColorSpace cs i e)
+     (A.Source r' (Pixel cs' e'), ColorSpace cs' i' e', ColorSpace cs i e)
   => Image r' cs' e'
   -> Image A.D cs e
 convertImage = A.map convertPixel
@@ -286,7 +279,7 @@ convertImage = A.map convertPixel
 -- available `ColorSpace` instances this function is perfectly safe.
 --
 -- @since 0.2.0
-toImageBaseModel :: A.Array A.S A.Ix2 (Pixel cs e) -> A.Array A.S A.Ix2 (Pixel (BaseModel cs) e)
+toImageBaseModel :: A.Matrix A.S (Pixel cs e) -> A.Matrix A.S (Pixel (BaseModel cs) e)
 toImageBaseModel = unsafeCoerce
 
 
@@ -294,49 +287,14 @@ toImageBaseModel = unsafeCoerce
 -- available `ColorSpace` instances this function is perfectly safe.
 --
 -- @since 0.2.0
-fromImageBaseModel :: A.Array A.S A.Ix2 (Pixel (BaseModel cs) e) -> A.Array A.S A.Ix2 (Pixel cs e)
+fromImageBaseModel :: A.Matrix A.S (Pixel (BaseModel cs) e) -> A.Matrix A.S (Pixel cs e)
 fromImageBaseModel = unsafeCoerce
 
 -- | Convert Binary image to its Word8 backed pixel without copy
 --
 -- @since 0.4.1
-coerceBinaryImage :: A.Array A.S A.Ix2 (Pixel CM.X Bit) -> A.Array A.S A.Ix2 (Pixel CM.X Word8)
+coerceBinaryImage :: A.Matrix A.S (Pixel CM.X Bit) -> A.Matrix A.S (Pixel CM.X Word8)
 coerceBinaryImage = unsafeCoerce
-
--- | Cast an array with Luma pixels to an array with pixels in a plain single channel
--- `CM.X` color model
---
--- @since 0.2.1
-demoteLumaImage :: A.Array A.S A.Ix2 (Pixel (Y' cs) e) -> A.Array A.S A.Ix2 (Pixel CM.X e)
-demoteLumaImage = unsafeCoerce
-{-# DEPRECATED demoteLumaImage "In favor of `toImageBaseModel`" #-}
-
--- | Cast an array with pixels in a plain single channel `CM.X` color model to an array
--- with Luma pixels
---
--- @since 0.2.1
-promoteLumaImage :: A.Array A.S A.Ix2 (Pixel CM.X e) -> A.Array A.S A.Ix2 (Pixel (Y' cs) e)
-promoteLumaImage = unsafeCoerce
-{-# DEPRECATED promoteLumaImage "In favor of `fromImageBaseModel`" #-}
-
--- | Same as `demoteLumaImage`, but with Alpha channel
---
--- @since 0.2.1
-demoteLumaAlphaImage ::
-     A.Array A.S A.Ix2 (Pixel (Alpha (Y' cs)) e) -> A.Array A.S A.Ix2 (Pixel (Alpha CM.X) e)
-demoteLumaAlphaImage = unsafeCoerce
-{-# DEPRECATED demoteLumaAlphaImage "In favor of `toImageBaseModel`" #-}
-
-
--- | Same as `promoteLumaImage` but with Alpha channel
---
--- @since 0.2.1
-promoteLumaAlphaImage ::
-     A.Array A.S A.Ix2 (Pixel (Alpha CM.X) e) -> A.Array A.S A.Ix2 (Pixel (Alpha (Y' cs)) e)
-promoteLumaAlphaImage = unsafeCoerce
-{-# DEPRECATED promoteLumaAlphaImage "In favor of `fromImageBaseModel`" #-}
-
-
 
 unsafeFromStorableVectorM ::
      (MonadThrow m, A.Index ix, A.Storable a, A.Storable b)
@@ -344,8 +302,4 @@ unsafeFromStorableVectorM ::
   -> V.Vector a
   -> m (A.Array A.S ix b)
 unsafeFromStorableVectorM sz v =
-#if MIN_VERSION_massiv(0,5,0)
-    A.resizeM sz $ A.fromStorableVector A.Par $ V.unsafeCast v
-#else
-    fromVectorM A.Par sz $ V.unsafeCast v
-#endif
+  A.resizeM sz $ A.fromStorableVector A.Par $ V.unsafeCast v

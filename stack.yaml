@@ -3,4 +3,7 @@ packages:
 - 'massiv-io/'
 flags: {}
 extra-package-dbs: []
-extra-deps: []
+extra-deps:
+- massiv-1.0.0.0@sha256:966d2ed2b7db234c72d540fe9740050f9ea489fb76d14e6a63071aa5c8e7c503,4867
+- massiv-test-1.0.0.0@sha256:d8f8903d416586a94f57b48c31594d057e7200d5ce077f363b463e4c8d8717cf,6413
+- scheduler-2.0.0@sha256:3f053e3ff024fdcdd0983fb901313ef979921bc27e12dec97cd330878ddf78b1,2525

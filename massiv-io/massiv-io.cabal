@@ -1,5 +1,5 @@
 name:                massiv-io
-version:             0.4.1.0
+version:             1.0.0.0
 synopsis:            Import/export of Image files into massiv Arrays
 description:         This package contains functionality for import/export of arrays
                      into the real world. For now it only has the ability to read/write
@@ -40,7 +40,7 @@ library
                      , deepseq
                      , exceptions
                      , filepath
-                     , massiv          >= 0.3
+                     , massiv          >= 1.0
                      , JuicyPixels     >= 3.3.5
                      , netpbm
                      , unliftio        >= 0.2.12
@@ -64,6 +64,7 @@ test-suite tests
                     , Test.Massiv.Array.IO.Image.JuicyPixelsSpec
                     , Test.Massiv.Array.IO.Image.AutoSpec
                     , Spec
+  build-tool-depends: hspec-discover:hspec-discover
   build-depends:      JuicyPixels
                     , QuickCheck
                     , base

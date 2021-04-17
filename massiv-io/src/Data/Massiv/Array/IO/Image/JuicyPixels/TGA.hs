@@ -79,7 +79,7 @@ instance Writable TGA (Image S (Alpha (SRGB 'NonLinear)) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
 
-instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel cs e)) =>
+instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r (Pixel cs e)) =>
          Writable (Auto TGA) (Image r cs e) where
   encodeM f _ = pure . encodeAutoTGA f
 
@@ -118,7 +118,7 @@ decodeWithMetadataTGA f bs = convertWithMetadata f (JP.decodeTgaWithMetadata bs)
 
 -- | Decode a Tga Image
 decodeAutoTGA ::
-     (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto TGA
   -> B.ByteString
   -> m (Image r cs e)
@@ -126,14 +126,14 @@ decodeAutoTGA f bs = convertAutoWith f (JP.decodeTga bs)
 
 -- | Decode a Tga Image
 decodeAutoWithMetadataTGA ::
-     (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto TGA
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataTGA f bs = convertAutoWithMetadata f (JP.decodeTgaWithMetadata bs)
 
 
-instance (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
+instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto TGA) (Image r cs e) where
   decodeWithMetadataM = decodeAutoWithMetadataTGA
 
@@ -159,7 +159,7 @@ encodeAutoTGA ::
      forall r cs i e.
      ( ColorSpace (BaseSpace cs) i e
      , ColorSpace cs i e
-     , Source r Ix2 (Pixel cs e)
+     , Source r (Pixel cs e)
      )
   => Auto TGA
   -> Image r cs e
@@ -180,7 +180,7 @@ encodeAutoTGA _ img =
     ]
   where
     toTga ::
-         (JP.TgaSaveable px, Source r ix a)
+         (JP.TgaSaveable px, Source r a, Index ix)
       => (Array D ix b -> JP.Image px)
       -> (a -> b)
       -> Array r ix a
