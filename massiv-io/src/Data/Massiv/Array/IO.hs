@@ -59,12 +59,10 @@ import Data.Massiv.Array.IO.Base as Base (Auto(..), ConvertError(..),
                                           convertImage, coerceBinaryImage,
                                           decode', decodeError,
                                           defaultWriteOptions,
-                                          demoteLumaAlphaImage, demoteLumaImage,
                                           encode', encodeError,
                                           fromImageBaseModel, fromMaybeDecode,
                                           fromMaybeEncode,
-                                          promoteLumaAlphaImage,
-                                          promoteLumaImage, toImageBaseModel,
+                                          toImageBaseModel,
                                           toProxy)
 import Data.Massiv.Array.IO.Image
 import Graphics.Pixel.ColorSpace
@@ -208,7 +206,7 @@ readImage path = liftIO (B.readFile path >>= decodeImageM imageReadFormats path)
 --
 -- @since 0.1.0
 readImageAuto ::
-     (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e, MonadIO m)
+     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadIO m)
   => FilePath -- ^ File path for an image
   -> m (Image r cs e)
 readImageAuto path = liftIO (B.readFile path >>= decodeImageM imageReadAutoFormats path)
@@ -228,7 +226,7 @@ readImageAuto path = liftIO (B.readFile path >>= decodeImageM imageReadAutoForma
 --
 -- @since 0.1.0
 writeImage ::
-     (Source r Ix2 (Pixel cs e), ColorModel cs e, MonadIO m) => FilePath -> Image r cs e -> m ()
+     (Source r (Pixel cs e), ColorModel cs e, MonadIO m) => FilePath -> Image r cs e -> m ()
 writeImage path img = liftIO (encodeImageM imageWriteFormats path img >>= writeLazyAtomically path)
 
 
@@ -245,7 +243,7 @@ writeImage path img = liftIO (encodeImageM imageWriteFormats path img >>= writeL
 --
 -- @since 0.1.0
 writeImageAuto ::
-     (Source r Ix2 (Pixel cs e), ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, MonadIO m)
+     (Source r (Pixel cs e), ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, MonadIO m)
   => FilePath
   -> Image r cs e
   -> m ()

@@ -17,3 +17,6 @@ extra-deps:
 #   subdirs:
 #     - Color
 - scheduler-1.5.0@sha256:8b43f2991bf9a720b12192ba99525f705a44aeae9541a7bd73fbc7e7b56fd8f0,2437
+- ../massiv/massiv
+- ../massiv/massiv-test
+

@@ -106,7 +106,7 @@ decodeNetpbmImageSequence = decodePPMs fromNetpbmImage
 --
 -- @since 0.2.0
 decodeAutoNetpbmImage ::
-     (FileFormat f, Mutable r Ix2 (Pixel cs e), MonadThrow m, ColorSpace cs i e)
+     (FileFormat f, Mutable r (Pixel cs e), MonadThrow m, ColorSpace cs i e)
   => f
   -> B.ByteString
   -> m (Image r cs e, Maybe B.ByteString)
@@ -116,13 +116,13 @@ decodeAutoNetpbmImage = decodePPM fromNetpbmImageAuto
 --
 -- @since 0.2.0
 decodeAutoNetpbmImageSequence ::
-     (FileFormat (Sequence f), Mutable r Ix2 (Pixel cs e), MonadThrow m, ColorSpace cs i e)
+     (FileFormat (Sequence f), Mutable r (Pixel cs e), MonadThrow m, ColorSpace cs i e)
   => Auto (Sequence f)
   -> B.ByteString
   -> m ([Image r cs e], Maybe B.ByteString)
 decodeAutoNetpbmImageSequence = decodePPMs fromNetpbmImageAuto
 
-decodePPMs :: (FileFormat f, Mutable r Ix2 (Pixel cs e), ColorModel cs e, MonadThrow m) =>
+decodePPMs :: (FileFormat f, Mutable r (Pixel cs e), ColorModel cs e, MonadThrow m) =>
               (Netpbm.PPM -> Maybe (Image r cs e))
            -> f
            -> B.ByteString
@@ -137,7 +137,7 @@ decodePPMs converter f bs =
 {-# INLINE decodePPMs #-}
 
 
-decodePPM :: (FileFormat f, Mutable r Ix2 (Pixel cs e), ColorModel cs e, MonadThrow m) =>
+decodePPM :: (FileFormat f, Mutable r (Pixel cs e), ColorModel cs e, MonadThrow m) =>
              (Netpbm.PPM -> Maybe (Image r cs e))
           -> f
           -> B.ByteString
@@ -259,29 +259,29 @@ fromNetpbmImage Netpbm.PPM {..} = do
                               fromNetpbmImageUnsafe m n v
 
 
-instance (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
+instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto PBM) (Image r cs e) where
   decodeWithMetadataM = decodeAutoNetpbmImage
-instance (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
+instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto (Sequence PBM)) [Image r cs e] where
   decodeWithMetadataM = decodeAutoNetpbmImageSequence
 
-instance (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
+instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto PGM) (Image r cs e) where
   decodeWithMetadataM = decodeAutoNetpbmImage
-instance (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
+instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto (Sequence PGM)) [Image r cs e] where
   decodeWithMetadataM = decodeAutoNetpbmImageSequence
 
-instance (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
+instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto PPM) (Image r cs e) where
   decodeWithMetadataM = decodeAutoNetpbmImage
-instance (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
+instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto (Sequence PPM)) [Image r cs e] where
   decodeWithMetadataM = decodeAutoNetpbmImageSequence
 
 fromNetpbmImageAuto
-  :: forall cs i e r . (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
+  :: forall cs i e r . (Mutable r (Pixel cs e), ColorSpace cs i e) =>
      Netpbm.PPM -> Maybe (Image r cs e)
 fromNetpbmImageAuto Netpbm.PPM {..} = do
   let m = ppmHeight ppmHeader

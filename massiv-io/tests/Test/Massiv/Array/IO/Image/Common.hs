@@ -7,8 +7,8 @@
 module Test.Massiv.Array.IO.Image.Common where
 
 import qualified Data.ByteString.Lazy as BL
-import Data.List.NonEmpty as NE (NonEmpty(..))
-import Data.Massiv.Array
+import Data.List.NonEmpty as NE (NonEmpty(..), fromList)
+import Data.Massiv.Array as A
 import Data.Massiv.Array.IO
 import System.Random
 import Test.Massiv.Core
@@ -122,5 +122,6 @@ genNonEmptyImagesWithGifDelay = do
   arrs <- toSameSizeNE <$> (arbitrary :: Gen (ArrNE D Ix3 (Pixel cs e)))
   Prelude.mapM (\i -> (,) <$> arbitrary <*> pure (compute i)) arrs
 
-toSameSizeNE :: OuterSlice r ix e => ArrNE r ix e -> NonEmpty (Elt r ix e)
-toSameSizeNE (ArrNE arr) = (arr !>) <$> (0 :| [1 .. unSz (fst (unconsSz (size arr))) - 1])
+toSameSizeNE ::
+     (Index ix, Index (Lower ix), Source r e) => ArrNE r ix e -> NonEmpty (Array r (Lower ix) e)
+toSameSizeNE (ArrNE arr) = NE.fromList $ A.toList $ outerSlices arr

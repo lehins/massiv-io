@@ -75,7 +75,7 @@ instance Writable HDR (Image S CM.RGB Float) where
 instance Writable HDR (Image S (SRGB 'NonLinear) Float) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel cs e)) =>
+instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r (Pixel cs e)) =>
          Writable (Auto HDR) (Image r cs e) where
   encodeM f opts = pure . encodeAutoHDR f opts
 
@@ -98,7 +98,7 @@ decodeWithMetadataHDR f bs = convertWithMetadata f (JP.decodeHDRWithMetadata bs)
 
 -- | Decode a HDR Image
 decodeAutoHDR ::
-     (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto HDR
   -> B.ByteString
   -> m (Image r cs e)
@@ -106,13 +106,13 @@ decodeAutoHDR f bs = convertAutoWith f (JP.decodeHDR bs)
 
 -- | Decode a HDR Image
 decodeAutoWithMetadataHDR ::
-     (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto HDR
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataHDR f bs = convertAutoWithMetadata f (JP.decodeHDRWithMetadata bs)
 
-instance (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
+instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto HDR) (Image r cs e) where
   decodeM = decodeAutoHDR
   decodeWithMetadataM = decodeAutoWithMetadataHDR
@@ -132,7 +132,7 @@ encodeHDR f opts img =
 
 
 encodeAutoHDR ::
-     forall r cs i e. (ColorSpace cs i e, Source r Ix2 (Pixel cs e))
+     forall r cs i e. (ColorSpace cs i e, Source r (Pixel cs e))
   => Auto HDR
   -> HdrOptions
   -> Image r cs e
@@ -140,5 +140,5 @@ encodeAutoHDR ::
 encodeAutoHDR _ opts = toHdr (toPixelBaseModel . toSRGBF)
   where
     toSRGBF = convertPixel :: Pixel cs e -> Pixel (SRGB 'NonLinear) Float
-    toHdr :: Source r Ix2 a => (a -> Pixel CM.RGB Float) -> Array r Ix2 a -> BL.ByteString
+    toHdr :: Source r a => (a -> Pixel CM.RGB Float) -> Array r Ix2 a -> BL.ByteString
     toHdr adjustPixel = getHdrEncoder opts . toJPImageRGBF . A.map adjustPixel
