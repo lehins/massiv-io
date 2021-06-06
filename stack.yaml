@@ -4,8 +4,6 @@ packages:
 flags: {}
 extra-package-dbs: []
 extra-deps:
-# - massiv-0.5.2.0
-# - massiv-0.1.3
 # - github: lehins/massiv
 #   commit: 0a15ce17bcfdb88d76cd90ce06896f9a8c99b55c
 #   subdirs:
@@ -16,6 +14,9 @@ extra-deps:
 #   commit: beb4282b4380441a8e99639a9a608e481eb18aa9
 #   subdirs:
 #     - Color
+- random-1.2.0@sha256:5ca8674e95c46c7eb90f520c26aea22d403625c97697275434afba66ebd32b05,5897
+- splitmix-0.1.0.3@sha256:fc3aae74c467f4b608050bef53aec17904a618731df9407e655d8f3bf8c32d5c,6049
+- QuickCheck-2.14.1@sha256:01e46d7b0a8d3148288ec977625f62d5516ebb5031a50c63f0453863301b4a79,7736
 - scheduler-1.5.0@sha256:8b43f2991bf9a720b12192ba99525f705a44aeae9541a7bd73fbc7e7b56fd8f0,2437
 - ../massiv/massiv
 - ../massiv/massiv-test
