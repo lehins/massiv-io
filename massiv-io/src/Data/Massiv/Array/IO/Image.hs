@@ -6,7 +6,7 @@
 {-# LANGUAGE TypeApplications #-}
 -- |
 -- Module      : Data.Massiv.Array.IO.Image
--- Copyright   : (c) Alexey Kuleshevich 2018-2020
+-- Copyright   : (c) Alexey Kuleshevich 2018-2021
 -- License     : BSD3
 -- Maintainer  : Alexey Kuleshevich <lehins@yandex.ru>
 -- Stability   : experimental

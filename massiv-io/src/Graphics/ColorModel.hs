@@ -1,6 +1,6 @@
 -- |
 -- Module      : Graphics.ColorModel
--- Copyright   : (c) Alexey Kuleshevich 2020
+-- Copyright   : (c) Alexey Kuleshevich 2020-2021
 -- License     : BSD3
 -- Maintainer  : Alexey Kuleshevich <lehins@yandex.ru>
 -- Stability   : experimental
