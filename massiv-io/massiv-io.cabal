@@ -40,7 +40,7 @@ library
                      , deepseq
                      , exceptions
                      , filepath
-                     , massiv          >= 1.0
+                     , massiv          >= 1.0.0
                      , JuicyPixels     >= 3.3.5
                      , netpbm
                      , unliftio        >= 0.2.12
