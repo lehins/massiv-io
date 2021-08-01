@@ -267,7 +267,7 @@ decodeWithMetadataTIF f bs = convertWithMetadata f (JP.decodeTiffWithMetadata bs
 
 -- | Decode a Tiff Image
 decodeAutoTIF ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto TIF
   -> B.ByteString
   -> m (Image r cs e)
@@ -275,13 +275,13 @@ decodeAutoTIF f bs = convertAutoWith f (JP.decodeTiff bs)
 
 -- | Decode a Tiff Image
 decodeAutoWithMetadataTIF ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto TIF
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataTIF f bs = convertAutoWithMetadata f (JP.decodeTiffWithMetadata bs)
 
-instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
+instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto TIF) (Image r cs e) where
   decodeM = decodeAutoTIF
   decodeWithMetadataM = decodeAutoWithMetadataTIF

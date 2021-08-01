@@ -155,7 +155,7 @@ decodeWithMetadataJPG f bs = convertWithMetadata f (JP.decodeJpegWithMetadata bs
 
 -- | Decode a Jpeg Image
 decodeAutoJPG ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto JPG
   -> B.ByteString
   -> m (Image r cs e)
@@ -163,13 +163,13 @@ decodeAutoJPG f bs = convertAutoWith f (JP.decodeJpeg bs)
 
 -- | Decode a Jpeg Image
 decodeAutoWithMetadataJPG ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto JPG
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataJPG f bs = convertAutoWithMetadata f (JP.decodeJpegWithMetadata bs)
 
-instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
+instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto JPG) (Image r cs e) where
   decodeM = decodeAutoJPG
   decodeWithMetadataM = decodeAutoWithMetadataJPG

@@ -206,7 +206,7 @@ readImage path = liftIO (B.readFile path >>= decodeImageM imageReadFormats path)
 --
 -- @since 0.1.0
 readImageAuto ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadIO m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadIO m)
   => FilePath -- ^ File path for an image
   -> m (Image r cs e)
 readImageAuto path = liftIO (B.readFile path >>= decodeImageM imageReadAutoFormats path)

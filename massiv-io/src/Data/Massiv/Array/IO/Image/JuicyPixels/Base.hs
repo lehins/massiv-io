@@ -102,7 +102,7 @@ convertWithMetadata f decoded =
       pure (i, meta)
 
 convertAutoWithMetadata ::
-     (MonadThrow m, Mutable r (Pixel cs e), ColorSpace cs i e)
+     (MonadThrow m, Manifest r (Pixel cs e), ColorSpace cs i e)
   => Auto f
   -> Either String (JP.DynamicImage, Metadata f)
   -> m (Image r cs e, Metadata f)
@@ -114,7 +114,7 @@ convertAutoWithMetadata _ decoded =
       pure (i, meta)
 
 convertAutoWith ::
-     (MonadThrow m, Mutable r (Pixel cs e), ColorSpace cs i e)
+     (MonadThrow m, Manifest r (Pixel cs e), ColorSpace cs i e)
   => Auto f
   -> Either String JP.DynamicImage
   -> m (Image r cs e)
@@ -132,7 +132,7 @@ convertSequenceWith f ejpImgs = do
 
 
 convertAutoSequenceWith ::
-     (MonadThrow m, Mutable r (Pixel cs e), ColorSpace cs i e)
+     (MonadThrow m, Manifest r (Pixel cs e), ColorSpace cs i e)
   => Auto (Sequence f)
   -> Either String [JP.DynamicImage]
   -> m [Image r cs e]
@@ -283,7 +283,7 @@ fromDynamicImage jpDynImg =
 {-# DEPRECATED fromDynamicImage "In favor of `fromDynamicImageM`" #-}
 
 fromDynamicImageAuto ::
-     forall r cs i e m. (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     forall r cs i e m. (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => JP.DynamicImage
   -> m (Image r cs e)
 fromDynamicImageAuto jpDynImg =

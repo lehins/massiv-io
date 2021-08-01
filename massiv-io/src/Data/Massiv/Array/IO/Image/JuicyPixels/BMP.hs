@@ -127,7 +127,7 @@ decodeWithMetadataBMP f bs = convertWithMetadata f (JP.decodeBitmapWithMetadata 
 
 -- | Decode a Bitmap Image
 decodeAutoBMP ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto BMP
   -> B.ByteString
   -> m (Image r cs e)
@@ -135,13 +135,13 @@ decodeAutoBMP f bs = convertAutoWith f (JP.decodeBitmap bs)
 
 -- | Decode a Bitmap Image
 decodeAutoWithMetadataBMP ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto BMP
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataBMP f bs = convertAutoWithMetadata f (JP.decodeBitmapWithMetadata bs)
 
-instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
+instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto BMP) (Image r cs e) where
   decodeM = decodeAutoBMP
   decodeWithMetadataM = decodeAutoWithMetadataBMP

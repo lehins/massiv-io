@@ -183,7 +183,7 @@ imageReadFormats =
 
 -- | List of image formats decodable with automatic colorspace conversion
 imageReadAutoFormats
-  :: (Mutable r (Pixel cs e), ColorSpace cs i e)
+  :: (Manifest r (Pixel cs e), ColorSpace cs i e)
   => [Decode (Image r cs e)]
 imageReadAutoFormats =
   [ Decode (Auto PNG) decodeAutoPNG

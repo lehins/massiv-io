@@ -136,7 +136,7 @@ decodeWithMetadataGIF f bs = convertWithMetadata f (JP.decodeGifWithMetadata bs)
 
 -- | Decode a Gif Image
 decodeAutoGIF ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto GIF
   -> B.ByteString
   -> m (Image r cs e)
@@ -144,14 +144,14 @@ decodeAutoGIF f bs = convertAutoWith f (JP.decodeGif bs)
 
 -- | Decode a Gif Image
 decodeAutoWithMetadataGIF ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto GIF
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataGIF f bs = convertAutoWithMetadata f (JP.decodeGifWithMetadata bs)
 
 
-instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
+instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto GIF) (Image r cs e) where
   decodeM = decodeAutoGIF
   decodeWithMetadataM = decodeAutoWithMetadataGIF
@@ -231,7 +231,7 @@ instance Readable (Sequence GIF) [Image S (Alpha (SRGB 'NonLinear)) Word8] where
   decodeWithMetadataM f = fmap (first (fmap fromImageBaseModel)) . decodeWithMetadataM f
 
 
-instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
+instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto (Sequence GIF)) [Image r cs e] where
   decodeM = decodeAutoSequenceGIF
   decodeWithMetadataM = decodeAutoSequenceWithMetadataGIF
@@ -252,7 +252,7 @@ decodeSequenceWithMetadataGIF = decodeSeqMetadata decodeSequenceGIF
 
 -- | Decode a sequence of Gif images
 decodeAutoSequenceGIF ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto (Sequence GIF)
   -> B.ByteString
   -> m [Image r cs e]
@@ -260,7 +260,7 @@ decodeAutoSequenceGIF f bs = convertAutoSequenceWith f (JP.decodeGifImages bs)
 
 -- | Decode a sequence of Gif images
 decodeAutoSequenceWithMetadataGIF ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto (Sequence GIF)
   -> B.ByteString
   -> m ([Image r cs e], [JP.GifDelay])
@@ -378,7 +378,7 @@ instance Writable (Sequence GIF) (NE.NonEmpty ( JP.GifDelay
   encodeM f opts = encodeM f opts . fmap (\(dl, dp, i) -> (dl, dp, toImageBaseModel i))
 
 
-instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
+instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Writable (Auto (Sequence GIF)) (NE.NonEmpty (JP.GifDelay, Image r cs e)) where
   encodeM (Auto f) opts =
     encodeM f opts .

@@ -118,7 +118,7 @@ decodeWithMetadataTGA f bs = convertWithMetadata f (JP.decodeTgaWithMetadata bs)
 
 -- | Decode a Tga Image
 decodeAutoTGA ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto TGA
   -> B.ByteString
   -> m (Image r cs e)
@@ -126,14 +126,14 @@ decodeAutoTGA f bs = convertAutoWith f (JP.decodeTga bs)
 
 -- | Decode a Tga Image
 decodeAutoWithMetadataTGA ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto TGA
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataTGA f bs = convertAutoWithMetadata f (JP.decodeTgaWithMetadata bs)
 
 
-instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
+instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto TGA) (Image r cs e) where
   decodeWithMetadataM = decodeAutoWithMetadataTGA
 

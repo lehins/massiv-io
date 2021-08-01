@@ -98,7 +98,7 @@ decodeWithMetadataHDR f bs = convertWithMetadata f (JP.decodeHDRWithMetadata bs)
 
 -- | Decode a HDR Image
 decodeAutoHDR ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto HDR
   -> B.ByteString
   -> m (Image r cs e)
@@ -106,13 +106,13 @@ decodeAutoHDR f bs = convertAutoWith f (JP.decodeHDR bs)
 
 -- | Decode a HDR Image
 decodeAutoWithMetadataHDR ::
-     (Mutable r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto HDR
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataHDR f bs = convertAutoWithMetadata f (JP.decodeHDRWithMetadata bs)
 
-instance (Mutable r (Pixel cs e), ColorSpace cs i e) =>
+instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto HDR) (Image r cs e) where
   decodeM = decodeAutoHDR
   decodeWithMetadataM = decodeAutoWithMetadataHDR
