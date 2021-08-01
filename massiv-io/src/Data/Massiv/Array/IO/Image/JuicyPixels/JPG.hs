@@ -101,7 +101,7 @@ instance Writable JPG (Image S (Y'CbCr SRGB) Word8) where
 instance Writable JPG (Image S (CMYK (SRGB 'NonLinear)) Word8) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel cs e)) =>
+instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r (Pixel cs e)) =>
          Writable (Auto JPG) (Image r cs e) where
   encodeM f opts = pure . encodeAutoJPG f opts
 
@@ -155,7 +155,7 @@ decodeWithMetadataJPG f bs = convertWithMetadata f (JP.decodeJpegWithMetadata bs
 
 -- | Decode a Jpeg Image
 decodeAutoJPG ::
-     (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto JPG
   -> B.ByteString
   -> m (Image r cs e)
@@ -163,13 +163,13 @@ decodeAutoJPG f bs = convertAutoWith f (JP.decodeJpeg bs)
 
 -- | Decode a Jpeg Image
 decodeAutoWithMetadataJPG ::
-     (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto JPG
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataJPG f bs = convertAutoWithMetadata f (JP.decodeJpegWithMetadata bs)
 
-instance (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
+instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto JPG) (Image r cs e) where
   decodeM = decodeAutoJPG
   decodeWithMetadataM = decodeAutoWithMetadataJPG
@@ -199,7 +199,7 @@ encodeJPG f opts@JpegOptions {jpegQuality, jpegMetadata} img =
 
 
 encodeAutoJPG ::
-     forall r cs i e. (ColorSpace (BaseSpace cs) i e, ColorSpace cs i e, Source r Ix2 (Pixel cs e))
+     forall r cs i e. (ColorSpace (BaseSpace cs) i e, ColorSpace cs i e, Source r (Pixel cs e))
   => Auto JPG
   -> JpegOptions
   -> Image r cs e
@@ -220,7 +220,7 @@ encodeAutoJPG _ JpegOptions {jpegQuality, jpegMetadata} img =
     ]
   where
     toJpeg ::
-         (JP.JpgEncodable px, Source r ix a)
+         (JP.JpgEncodable px, Source r a, Index ix)
       => (Array D ix b -> JP.Image px)
       -> (a -> b)
       -> Array r ix a

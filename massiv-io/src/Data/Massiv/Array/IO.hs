@@ -59,12 +59,10 @@ import Data.Massiv.Array.IO.Base as Base (Auto(..), ConvertError(..),
                                           convertImage, coerceBinaryImage,
                                           decode', decodeError,
                                           defaultWriteOptions,
-                                          demoteLumaAlphaImage, demoteLumaImage,
                                           encode', encodeError,
                                           fromImageBaseModel, fromMaybeDecode,
                                           fromMaybeEncode,
-                                          promoteLumaAlphaImage,
-                                          promoteLumaImage, toImageBaseModel,
+                                          toImageBaseModel,
                                           toProxy)
 import Data.Massiv.Array.IO.Image
 import Graphics.Pixel.ColorSpace
@@ -208,7 +206,7 @@ readImage path = liftIO (B.readFile path >>= decodeImageM imageReadFormats path)
 --
 -- @since 0.1.0
 readImageAuto ::
-     (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e, MonadIO m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadIO m)
   => FilePath -- ^ File path for an image
   -> m (Image r cs e)
 readImageAuto path = liftIO (B.readFile path >>= decodeImageM imageReadAutoFormats path)
@@ -228,7 +226,7 @@ readImageAuto path = liftIO (B.readFile path >>= decodeImageM imageReadAutoForma
 --
 -- @since 0.1.0
 writeImage ::
-     (Source r Ix2 (Pixel cs e), ColorModel cs e, MonadIO m) => FilePath -> Image r cs e -> m ()
+     (Source r (Pixel cs e), ColorModel cs e, MonadIO m) => FilePath -> Image r cs e -> m ()
 writeImage path img = liftIO (encodeImageM imageWriteFormats path img >>= writeLazyAtomically path)
 
 
@@ -245,13 +243,12 @@ writeImage path img = liftIO (encodeImageM imageWriteFormats path img >>= writeL
 --
 -- @since 0.1.0
 writeImageAuto ::
-     (Source r Ix2 (Pixel cs e), ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, MonadIO m)
+     (Source r (Pixel cs e), ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, MonadIO m)
   => FilePath
   -> Image r cs e
   -> m ()
 writeImageAuto path img =
   liftIO (encodeImageM imageWriteAutoFormats path img >>= writeLazyAtomically path)
-
 
 
 -- | An image is written as a @.tiff@ file into an operating system's temporary
@@ -265,8 +262,7 @@ displayImageUsing ::
           -- closed. Supplying `False` is only safe in the ghci session.
   -> Image r cs e -- ^ Image to display
   -> m ()
-displayImageUsing viewer block =
-  displayImageUsingAdhoc  viewer block (writableAdhoc (Auto TIF))
+displayImageUsing viewer block = displayImageUsingAdhoc viewer block (writableAdhoc (Auto TIF))
 
 
 -- | Encode an image using an adhoc into an operating system's temporary
@@ -317,7 +313,7 @@ displayImageFile (ExternalViewer exe args ix) imgPath =
 -- set as a default image viewer by the OS. This is a non-blocking function call, so it
 -- might take some time before an image will appear.
 --
--- /Note/ - This function should only be used in ghci, otherwise use @`displayImage`
+-- /Note/ - This function should only be used in ghci, otherwise use @`displayImageUsing`
 -- `defaultViewer` `True`@
 --
 -- @since 0.1.0

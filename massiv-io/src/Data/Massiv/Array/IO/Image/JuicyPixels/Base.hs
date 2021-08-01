@@ -102,7 +102,7 @@ convertWithMetadata f decoded =
       pure (i, meta)
 
 convertAutoWithMetadata ::
-     (MonadThrow m, Mutable r Ix2 (Pixel cs e), ColorSpace cs i e)
+     (MonadThrow m, Manifest r (Pixel cs e), ColorSpace cs i e)
   => Auto f
   -> Either String (JP.DynamicImage, Metadata f)
   -> m (Image r cs e, Metadata f)
@@ -114,7 +114,7 @@ convertAutoWithMetadata _ decoded =
       pure (i, meta)
 
 convertAutoWith ::
-     (MonadThrow m, Mutable r Ix2 (Pixel cs e), ColorSpace cs i e)
+     (MonadThrow m, Manifest r (Pixel cs e), ColorSpace cs i e)
   => Auto f
   -> Either String JP.DynamicImage
   -> m (Image r cs e)
@@ -132,7 +132,7 @@ convertSequenceWith f ejpImgs = do
 
 
 convertAutoSequenceWith ::
-     (MonadThrow m, Mutable r Ix2 (Pixel cs e), ColorSpace cs i e)
+     (MonadThrow m, Manifest r (Pixel cs e), ColorSpace cs i e)
   => Auto (Sequence f)
   -> Either String [JP.DynamicImage]
   -> m [Image r cs e]
@@ -283,7 +283,7 @@ fromDynamicImage jpDynImg =
 {-# DEPRECATED fromDynamicImage "In favor of `fromDynamicImageM`" #-}
 
 fromDynamicImageAuto ::
-     forall r cs i e m. (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     forall r cs i e m. (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => JP.DynamicImage
   -> m (Image r cs e)
 fromDynamicImageAuto jpDynImg =
@@ -343,9 +343,12 @@ showJP (JP.ImageCMYK16 _) = "Image S CMYK Word16"
 
 -- Encoding
 
-toJPImageUnsafe
-  :: forall r cs a . (JP.Pixel a, Source r Ix2 (Pixel cs (JP.PixelBaseComponent a)),
-                      ColorModel cs (JP.PixelBaseComponent a))
+toJPImageUnsafe ::
+     forall r cs a.
+     ( JP.Pixel a
+     , Source r (Pixel cs (JP.PixelBaseComponent a))
+     , ColorModel cs (JP.PixelBaseComponent a)
+     )
   => Image r cs (JP.PixelBaseComponent a)
   -> JP.Image a
 toJPImageUnsafe img = JP.Image n m $ V.unsafeCast $ toStorableVector arrS
@@ -354,12 +357,12 @@ toJPImageUnsafe img = JP.Image n m $ V.unsafeCast $ toStorableVector arrS
     Sz (m :. n) = size img
 {-# INLINE toJPImageUnsafe #-}
 
-toJPImageY8 :: Source r Ix2 (Pixel CM.X Word8) => Image r CM.X Word8 -> JP.Image JP.Pixel8
+toJPImageY8 :: Source r (Pixel CM.X Word8) => Image r CM.X Word8 -> JP.Image JP.Pixel8
 toJPImageY8 = toJPImageUnsafe
 {-# INLINE toJPImageY8 #-}
 
 maybeJPImageY8 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel cs Word8))
+     forall cs. (Typeable cs, Storable (Pixel cs Word8))
   => Image S cs Word8
   -> Maybe (JP.Image JP.Pixel8)
 maybeJPImageY8 img =
@@ -370,14 +373,14 @@ maybeJPImageY8 img =
     ]
 {-# INLINE maybeJPImageY8 #-}
 
-toJPImageY16 :: Source r Ix2 (Pixel CM.X Word16) => Image r CM.X Word16 -> JP.Image JP.Pixel16
+toJPImageY16 :: Source r (Pixel CM.X Word16) => Image r CM.X Word16 -> JP.Image JP.Pixel16
 toJPImageY16 = toJPImageUnsafe
 {-# INLINE toJPImageY16 #-}
 
 
 
 maybeJPImageY16 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel cs Word16))
+     forall cs. (Typeable cs, Storable (Pixel cs Word16))
   => Image S cs Word16
   -> Maybe (JP.Image JP.Pixel16)
 maybeJPImageY16 img =
@@ -388,13 +391,13 @@ maybeJPImageY16 img =
     ]
 {-# INLINE maybeJPImageY16 #-}
 
-toJPImageY32 :: Source r Ix2 (Pixel CM.X Word32) => Image r CM.X Word32 -> JP.Image JP.Pixel32
+toJPImageY32 :: Source r (Pixel CM.X Word32) => Image r CM.X Word32 -> JP.Image JP.Pixel32
 toJPImageY32 = toJPImageUnsafe
 {-# INLINE toJPImageY32 #-}
 
 
 maybeJPImageY32 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel cs Word32))
+     forall cs. (Typeable cs, Storable (Pixel cs Word32))
   => Image S cs Word32
   -> Maybe (JP.Image JP.Pixel32)
 maybeJPImageY32 img =
@@ -406,13 +409,13 @@ maybeJPImageY32 img =
 {-# INLINE maybeJPImageY32 #-}
 
 
-toJPImageYF :: Source r Ix2 (Pixel CM.X Float) => Image r CM.X Float -> JP.Image JP.PixelF
+toJPImageYF :: Source r (Pixel CM.X Float) => Image r CM.X Float -> JP.Image JP.PixelF
 toJPImageYF = toJPImageUnsafe
 {-# INLINE toJPImageYF #-}
 
 
 maybeJPImageYF ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel cs Float))
+     forall cs. (Typeable cs, Storable (Pixel cs Float))
   => Image S cs Float
   -> Maybe (JP.Image JP.PixelF)
 maybeJPImageYF img =
@@ -425,12 +428,12 @@ maybeJPImageYF img =
 
 
 toJPImageYA8 ::
-     Source r Ix2 (Pixel (Alpha CM.X) Word8) => Image r (Alpha CM.X) Word8 -> JP.Image JP.PixelYA8
+     Source r (Pixel (Alpha CM.X) Word8) => Image r (Alpha CM.X) Word8 -> JP.Image JP.PixelYA8
 toJPImageYA8 = toJPImageUnsafe
 {-# INLINE toJPImageYA8 #-}
 
 maybeJPImageYA8 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel (Alpha cs) Word8))
+     forall cs. (Typeable cs, Storable (Pixel (Alpha cs) Word8))
   => Image S (Alpha cs) Word8
   -> Maybe (JP.Image JP.PixelYA8)
 maybeJPImageYA8 img =
@@ -443,7 +446,7 @@ maybeJPImageYA8 img =
 
 
 toJPImageYA16 ::
-     Source r Ix2 (Pixel (Alpha CM.X) Word16)
+     Source r (Pixel (Alpha CM.X) Word16)
   => Image r (Alpha CM.X) Word16
   -> JP.Image JP.PixelYA16
 toJPImageYA16 = toJPImageUnsafe
@@ -451,7 +454,7 @@ toJPImageYA16 = toJPImageUnsafe
 
 
 maybeJPImageYA16 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel (Alpha cs) Word16))
+     forall cs. (Typeable cs, Storable (Pixel (Alpha cs) Word16))
   => Image S (Alpha cs) Word16
   -> Maybe (JP.Image JP.PixelYA16)
 maybeJPImageYA16 img =
@@ -464,13 +467,13 @@ maybeJPImageYA16 img =
 
 
 
-toJPImageRGB8 :: Source r Ix2 (Pixel CM.RGB Word8) => Image r CM.RGB Word8 -> JP.Image JP.PixelRGB8
+toJPImageRGB8 :: Source r (Pixel CM.RGB Word8) => Image r CM.RGB Word8 -> JP.Image JP.PixelRGB8
 toJPImageRGB8 = toJPImageUnsafe
 {-# INLINE toJPImageRGB8 #-}
 
 
 maybeJPImageRGB8 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel cs Word8))
+     forall cs. (Typeable cs, Storable (Pixel cs Word8))
   => Image S cs Word8
   -> Maybe (JP.Image JP.PixelRGB8)
 maybeJPImageRGB8 img =
@@ -483,12 +486,12 @@ maybeJPImageRGB8 img =
 
 
 toJPImageRGB16 ::
-     Source r Ix2 (Pixel CM.RGB Word16) => Image r CM.RGB Word16 -> JP.Image JP.PixelRGB16
+     Source r (Pixel CM.RGB Word16) => Image r CM.RGB Word16 -> JP.Image JP.PixelRGB16
 toJPImageRGB16 = toJPImageUnsafe
 {-# INLINE toJPImageRGB16 #-}
 
 maybeJPImageRGB16 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel cs Word16))
+     forall cs. (Typeable cs, Storable (Pixel cs Word16))
   => Image S cs Word16
   -> Maybe (JP.Image JP.PixelRGB16)
 maybeJPImageRGB16 img =
@@ -500,12 +503,12 @@ maybeJPImageRGB16 img =
 {-# INLINE maybeJPImageRGB16 #-}
 
 
-toJPImageRGBF :: Source r Ix2 (Pixel CM.RGB Float) => Image r CM.RGB Float -> JP.Image JP.PixelRGBF
+toJPImageRGBF :: Source r (Pixel CM.RGB Float) => Image r CM.RGB Float -> JP.Image JP.PixelRGBF
 toJPImageRGBF = toJPImageUnsafe
 {-# INLINE toJPImageRGBF #-}
 
 maybeJPImageRGBF ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel cs Float))
+     forall cs. (Typeable cs, Storable (Pixel cs Float))
   => Image S cs Float
   -> Maybe (JP.Image JP.PixelRGBF)
 maybeJPImageRGBF img =
@@ -518,14 +521,14 @@ maybeJPImageRGBF img =
 
 
 toJPImageRGBA8 ::
-     Source r Ix2 (Pixel (Alpha CM.RGB) Word8)
+     Source r (Pixel (Alpha CM.RGB) Word8)
   => Image r (Alpha CM.RGB) Word8
   -> JP.Image JP.PixelRGBA8
 toJPImageRGBA8 = toJPImageUnsafe
 {-# INLINE toJPImageRGBA8 #-}
 
 maybeJPImageRGBA8 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel (Alpha cs) Word8))
+     forall cs. (Typeable cs, Storable (Pixel (Alpha cs) Word8))
   => Image S (Alpha cs) Word8
   -> Maybe (JP.Image JP.PixelRGBA8)
 maybeJPImageRGBA8 img =
@@ -539,14 +542,14 @@ maybeJPImageRGBA8 img =
 
 
 toJPImageRGBA16 ::
-     Source r Ix2 (Pixel (Alpha CM.RGB) Word16)
+     Source r (Pixel (Alpha CM.RGB) Word16)
   => Image r (Alpha CM.RGB) Word16
   -> JP.Image JP.PixelRGBA16
 toJPImageRGBA16 = toJPImageUnsafe
 {-# INLINE toJPImageRGBA16 #-}
 
 maybeJPImageRGBA16 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel (Alpha cs) Word16))
+     forall cs. (Typeable cs, Storable (Pixel (Alpha cs) Word16))
   => Image S (Alpha cs) Word16
   -> Maybe (JP.Image JP.PixelRGBA16)
 maybeJPImageRGBA16 img =
@@ -560,13 +563,13 @@ maybeJPImageRGBA16 img =
 {-# INLINE maybeJPImageRGBA16 #-}
 
 toJPImageYCbCr8 ::
-     Source r Ix2 (Pixel CM.YCbCr Word8) => Image r CM.YCbCr Word8 -> JP.Image JP.PixelYCbCr8
+     Source r (Pixel CM.YCbCr Word8) => Image r CM.YCbCr Word8 -> JP.Image JP.PixelYCbCr8
 toJPImageYCbCr8 = toJPImageUnsafe
 {-# INLINE toJPImageYCbCr8 #-}
 
 
 maybeJPImageYCbCr8 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel cs Word8))
+     forall cs. (Typeable cs, Storable (Pixel cs Word8))
   => Image S cs Word8
   -> Maybe (JP.Image JP.PixelYCbCr8)
 maybeJPImageYCbCr8 img =
@@ -579,13 +582,13 @@ maybeJPImageYCbCr8 img =
 
 
 toJPImageCMYK8 ::
-     Source r Ix2 (Pixel CM.CMYK Word8) => Image r CM.CMYK Word8 -> JP.Image JP.PixelCMYK8
+     Source r (Pixel CM.CMYK Word8) => Image r CM.CMYK Word8 -> JP.Image JP.PixelCMYK8
 toJPImageCMYK8 = toJPImageUnsafe
 {-# INLINE toJPImageCMYK8 #-}
 
 
 maybeJPImageCMYK8 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel cs Word8))
+     forall cs. (Typeable cs, Storable (Pixel cs Word8))
   => Image S cs Word8
   -> Maybe (JP.Image JP.PixelCMYK8)
 maybeJPImageCMYK8 img =
@@ -600,13 +603,13 @@ maybeJPImageCMYK8 img =
 
 
 toJPImageCMYK16 ::
-     Source r Ix2 (Pixel CM.CMYK Word16) => Image r CM.CMYK Word16 -> JP.Image JP.PixelCMYK16
+     Source r (Pixel CM.CMYK Word16) => Image r CM.CMYK Word16 -> JP.Image JP.PixelCMYK16
 toJPImageCMYK16 = toJPImageUnsafe
 {-# INLINE toJPImageCMYK16 #-}
 
 
 maybeJPImageCMYK16 ::
-     forall cs. (Typeable cs, Source S Ix2 (Pixel cs Word16))
+     forall cs. (Typeable cs, Storable (Pixel cs Word16))
   => Image S cs Word16
   -> Maybe (JP.Image JP.PixelCMYK16)
 maybeJPImageCMYK16 img =

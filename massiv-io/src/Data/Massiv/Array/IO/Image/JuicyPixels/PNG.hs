@@ -116,7 +116,7 @@ instance Writable PNG (Image S (Alpha (SRGB 'NonLinear)) Word8) where
 instance Writable PNG (Image S (Alpha (SRGB 'NonLinear)) Word16) where
   encodeM f opts = encodeM f opts . toImageBaseModel
 
-instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r Ix2 (Pixel cs e)) =>
+instance (ColorSpace cs i e, ColorSpace (BaseSpace cs) i e, Source r (Pixel cs e)) =>
          Writable (Auto PNG) (Image r cs e) where
   encodeM f _ = pure . encodeAutoPNG f
 
@@ -194,7 +194,7 @@ decodeWithMetadataPNG f bs = convertWithMetadata f (JP.decodePngWithMetadata bs)
 
 -- | Decode a Png Image
 decodeAutoPNG ::
-     (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto PNG
   -> B.ByteString
   -> m (Image r cs e)
@@ -202,13 +202,13 @@ decodeAutoPNG f bs = convertAutoWith f (JP.decodePng bs)
 
 -- | Decode a Png Image
 decodeAutoWithMetadataPNG ::
-     (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e, MonadThrow m)
+     (Manifest r (Pixel cs e), ColorSpace cs i e, MonadThrow m)
   => Auto PNG
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataPNG f bs = convertAutoWithMetadata f (JP.decodePngWithMetadata bs)
 
-instance (Mutable r Ix2 (Pixel cs e), ColorSpace cs i e) =>
+instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto PNG) (Image r cs e) where
   decodeM = decodeAutoPNG
   decodeWithMetadataM = decodeAutoWithMetadataPNG
@@ -240,7 +240,7 @@ encodePNG f img = fromMaybeEncode f (Proxy :: Proxy (Image S cs e)) encoded
 
 
 encodeAutoPNG ::
-     forall r cs i e. (ColorSpace (BaseSpace cs) i e, ColorSpace cs i e, Source r Ix2 (Pixel cs e))
+     forall r cs i e. (ColorSpace (BaseSpace cs) i e, ColorSpace cs i e, Source r (Pixel cs e))
   => Auto PNG
   -> Image r cs e
   -> BL.ByteString
@@ -272,7 +272,7 @@ encodeAutoPNG _ img =
     ]
   where
     toPng ::
-         (JP.PngSavable px, Source r ix a)
+         (JP.PngSavable px, Source r a, Index ix)
       => (Array D ix b -> JP.Image px)
       -> (a -> b)
       -> Array r ix a
