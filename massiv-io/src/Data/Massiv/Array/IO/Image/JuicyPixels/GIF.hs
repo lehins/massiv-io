@@ -43,9 +43,11 @@ import qualified Codec.Picture as JP
 import qualified Codec.Picture.ColorQuant as JP
 import qualified Codec.Picture.Gif as JP
 import qualified Codec.Picture.Metadata as JP
+import Control.Monad (msum)
 import Data.Bifunctor (first)
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BL (ByteString)
+import Data.List.NonEmpty as NE
 import Data.Massiv.Array as A
 import Data.Massiv.Array.IO.Base
 import Data.Massiv.Array.IO.Image.JuicyPixels.Base
@@ -53,7 +55,6 @@ import Data.Typeable
 import qualified Graphics.Pixel as CM
 import Graphics.Pixel.ColorSpace
 import Prelude as P
-import Data.List.NonEmpty as NE
 
 --------------------------------------------------------------------------------
 -- GIF Format ------------------------------------------------------------------
@@ -127,11 +128,13 @@ instance Readable GIF (Image S (Alpha (SRGB 'NonLinear)) Word8) where
 -- | Decode a Gif Image
 decodeGIF :: (ColorModel cs e, MonadThrow m) => GIF -> B.ByteString -> m (Image S cs e)
 decodeGIF f bs = convertWith f (JP.decodeGif bs)
+{-# INLINE decodeGIF #-}
 
 -- | Decode a Gif Image
 decodeWithMetadataGIF ::
      (ColorModel cs e, MonadThrow m) => GIF -> B.ByteString -> m (Image S cs e, JP.Metadatas)
 decodeWithMetadataGIF f bs = convertWithMetadata f (JP.decodeGifWithMetadata bs)
+{-# INLINE decodeWithMetadataGIF #-}
 
 
 -- | Decode a Gif Image
@@ -141,6 +144,7 @@ decodeAutoGIF ::
   -> B.ByteString
   -> m (Image r cs e)
 decodeAutoGIF f bs = convertAutoWith f (JP.decodeGif bs)
+{-# INLINE decodeAutoGIF #-}
 
 -- | Decode a Gif Image
 decodeAutoWithMetadataGIF ::
@@ -149,6 +153,7 @@ decodeAutoWithMetadataGIF ::
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataGIF f bs = convertAutoWithMetadata f (JP.decodeGifWithMetadata bs)
+{-# INLINE decodeAutoWithMetadataGIF #-}
 
 
 instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
@@ -190,8 +195,18 @@ encodeAutoGIF ::
   -> m BL.ByteString
 encodeAutoGIF _ opts img =
   fallbackEncodePalettizedRGB $ do
-    Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
-    pure $ JP.encodeGifImage $ toJPImageY8 $ A.map (toPixel8 . toPixelBaseModel) img
+    msum
+      [ do Refl <- eqT :: Maybe (r :~: S)
+           case eqT :: Maybe (e :~: Word8) of
+             Just Refl
+               | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.X)) ->
+                 pure $ JP.encodeGifImage $ toJPImageY8 (toImageBaseModel img)
+               | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.RGB)) ->
+                 encodePalettizedRGB opts (toImageBaseModel img)
+             _ -> Nothing
+      , do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
+           pure $ JP.encodeGifImage $ toJPImageY8 $ A.map (toPixel8 . toPixelBaseModel) img
+      ]
   where
     fallbackEncodePalettizedRGB =
       \case

@@ -185,12 +185,13 @@ instance Readable PNG (Image S (Alpha (SRGB 'NonLinear)) Word16) where
 -- | Decode a Png Image
 decodePNG :: (ColorModel cs e, MonadThrow m) => PNG -> B.ByteString -> m (Image S cs e)
 decodePNG f bs = convertWith f (JP.decodePng bs)
+{-# INLINE decodePNG #-}
 
 -- | Decode a Png Image
 decodeWithMetadataPNG ::
      (ColorModel cs e, MonadThrow m) => PNG -> B.ByteString -> m (Image S cs e, JP.Metadatas)
 decodeWithMetadataPNG f bs = convertWithMetadata f (JP.decodePngWithMetadata bs)
-
+{-# INLINE decodeWithMetadataPNG #-}
 
 -- | Decode a Png Image
 decodeAutoPNG ::
@@ -199,6 +200,7 @@ decodeAutoPNG ::
   -> B.ByteString
   -> m (Image r cs e)
 decodeAutoPNG f bs = convertAutoWith f (JP.decodePng bs)
+{-# INLINE decodeAutoPNG #-}
 
 -- | Decode a Png Image
 decodeAutoWithMetadataPNG ::
@@ -207,6 +209,7 @@ decodeAutoWithMetadataPNG ::
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataPNG f bs = convertAutoWithMetadata f (JP.decodePngWithMetadata bs)
+{-# INLINE decodeAutoWithMetadataPNG #-}
 
 instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto PNG) (Image r cs e) where
@@ -247,7 +250,32 @@ encodeAutoPNG ::
 encodeAutoPNG _ img =
   fromMaybe (toPng toJPImageRGB16 toSRGB16 img) $
   msum
-    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
+    [ do Refl <- eqT :: Maybe (r :~: S)
+         msum
+           [ case eqT :: Maybe (e :~: Word8) of
+               Just Refl
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.X)) ->
+                   pure $ JP.encodePng $ toJPImageY8 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.RGB)) ->
+                   pure $ JP.encodePng $ toJPImageRGB8 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: Alpha CM.X)) ->
+                   pure $ JP.encodePng $ toJPImageYA8 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: Alpha CM.RGB)) ->
+                   pure $ JP.encodePng $ toJPImageRGBA8 (toImageBaseModel img)
+               _ -> Nothing
+           , case eqT :: Maybe (e :~: Word16) of
+               Just Refl
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.X)) ->
+                   pure $ JP.encodePng $ toJPImageY16 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.RGB)) ->
+                   pure $ JP.encodePng $ toJPImageRGB16 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: Alpha CM.X)) ->
+                   pure $ JP.encodePng $ toJPImageYA16 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: Alpha CM.RGB)) ->
+                   pure $ JP.encodePng $ toJPImageRGBA16 (toImageBaseModel img)
+               _ -> Nothing
+           ]
+    , do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Bit)
                 pure $ toPng toJPImageY8 (toPixel8 . toPixelBaseModel) img

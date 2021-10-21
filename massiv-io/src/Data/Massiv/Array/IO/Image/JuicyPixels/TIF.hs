@@ -258,12 +258,13 @@ instance Readable TIF (Image S (CMYK (SRGB 'NonLinear)) Word16) where
 -- | Decode a Tiff Image
 decodeTIF :: (ColorModel cs e, MonadThrow m) => TIF -> B.ByteString -> m (Image S cs e)
 decodeTIF f bs = convertWith f (JP.decodeTiff bs)
+{-# INLINE decodeTIF #-}
 
 -- | Decode a Tiff Image
 decodeWithMetadataTIF ::
      (ColorModel cs e, MonadThrow m) => TIF -> B.ByteString -> m (Image S cs e, JP.Metadatas)
 decodeWithMetadataTIF f bs = convertWithMetadata f (JP.decodeTiffWithMetadata bs)
-
+{-# INLINE decodeWithMetadataTIF #-}
 
 -- | Decode a Tiff Image
 decodeAutoTIF ::
@@ -272,6 +273,7 @@ decodeAutoTIF ::
   -> B.ByteString
   -> m (Image r cs e)
 decodeAutoTIF f bs = convertAutoWith f (JP.decodeTiff bs)
+{-# INLINE decodeAutoTIF #-}
 
 -- | Decode a Tiff Image
 decodeAutoWithMetadataTIF ::
@@ -280,6 +282,7 @@ decodeAutoWithMetadataTIF ::
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataTIF f bs = convertAutoWithMetadata f (JP.decodeTiffWithMetadata bs)
+{-# INLINE decodeAutoWithMetadataTIF #-}
 
 instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto TIF) (Image r cs e) where
@@ -328,7 +331,44 @@ encodeAutoTIF ::
 encodeAutoTIF _ img =
   fromMaybe (toTiff toJPImageRGB8 toSRGB8 img) $
   msum
-    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
+    [ do Refl <- eqT :: Maybe (r :~: S)
+         msum
+           [ case eqT :: Maybe (e :~: Word8) of
+               Just Refl
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.X)) ->
+                   pure $ JP.encodeTiff $ toJPImageY8 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.RGB)) ->
+                   pure $ JP.encodeTiff $ toJPImageRGB8 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.YCbCr)) ->
+                   pure $ JP.encodeTiff $ toJPImageYCbCr8 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.CMYK)) ->
+                   pure $ JP.encodeTiff $ toJPImageCMYK8 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: Alpha CM.X)) ->
+                   pure $ JP.encodeTiff $ toJPImageYA8 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: Alpha CM.RGB)) ->
+                   pure $ JP.encodeTiff $ toJPImageRGBA8 (toImageBaseModel img)
+               _ -> Nothing
+           , case eqT :: Maybe (e :~: Word16) of
+               Just Refl
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.X)) ->
+                   pure $ JP.encodeTiff $ toJPImageY16 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.RGB)) ->
+                   pure $ JP.encodeTiff $ toJPImageRGB16 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.CMYK)) ->
+                   pure $ JP.encodeTiff $ toJPImageCMYK16 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: Alpha CM.X)) ->
+                   pure $ JP.encodeTiff $ toJPImageYA16 (toImageBaseModel img)
+                 | Just Refl <- (eqT :: Maybe (BaseModel cs :~: Alpha CM.RGB)) ->
+                   pure $ JP.encodeTiff $ toJPImageRGBA16 (toImageBaseModel img)
+               _ -> Nothing
+           , do Refl <- eqT :: Maybe (e :~: Word32)
+                Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
+                pure $ JP.encodeTiff $ toJPImageY32 (toImageBaseModel img)
+           , do Refl <- eqT :: Maybe (e :~: Float)
+                Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
+                pure $ JP.encodeTiff $ toJPImageYF (toImageBaseModel img)
+           ]
+    , do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Bit)
                 pure $ toTiff toJPImageY8 (toPixel8 . toPixelBaseModel) img

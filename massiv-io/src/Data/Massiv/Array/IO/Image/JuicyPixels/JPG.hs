@@ -146,12 +146,13 @@ instance Readable JPG (Image S (Y'CbCr SRGB) Word8) where
 -- | Decode a Jpeg Image
 decodeJPG :: (ColorModel cs e, MonadThrow m) => JPG -> B.ByteString -> m (Image S cs e)
 decodeJPG f bs = convertWith f (JP.decodeJpeg bs)
+{-# INLINE decodeJPG #-}
 
 -- | Decode a Jpeg Image
 decodeWithMetadataJPG ::
      (ColorModel cs e, MonadThrow m) => JPG -> B.ByteString -> m (Image S cs e, JP.Metadatas)
 decodeWithMetadataJPG f bs = convertWithMetadata f (JP.decodeJpegWithMetadata bs)
-
+{-# INLINE decodeWithMetadataJPG #-}
 
 -- | Decode a Jpeg Image
 decodeAutoJPG ::
@@ -160,6 +161,7 @@ decodeAutoJPG ::
   -> B.ByteString
   -> m (Image r cs e)
 decodeAutoJPG f bs = convertAutoWith f (JP.decodeJpeg bs)
+{-# INLINE decodeAutoJPG #-}
 
 -- | Decode a Jpeg Image
 decodeAutoWithMetadataJPG ::
@@ -168,6 +170,7 @@ decodeAutoWithMetadataJPG ::
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataJPG f bs = convertAutoWithMetadata f (JP.decodeJpegWithMetadata bs)
+{-# INLINE decodeAutoWithMetadataJPG #-}
 
 instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto JPG) (Image r cs e) where
@@ -207,7 +210,23 @@ encodeAutoJPG ::
 encodeAutoJPG _ JpegOptions {jpegQuality, jpegMetadata} img =
   fromMaybe (toJpeg toJPImageYCbCr8 toYCbCr8 img) $
   msum
-    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
+    [ do Refl <- eqT :: Maybe (r :~: S)
+         case eqT :: Maybe (e :~: Word8) of
+           Just Refl
+             | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.X)) ->
+               pure $
+               JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata $
+               toJPImageY8 (toImageBaseModel img)
+             | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.RGB)) ->
+               pure $
+               JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata $
+               toJPImageRGB8 (toImageBaseModel img)
+             | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.YCbCr)) ->
+               pure $
+               JP.encodeDirectJpegAtQualityWithMetadata jpegQuality jpegMetadata $
+               toJPImageYCbCr8 (toImageBaseModel img)
+           _ -> Nothing
+    , do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Bit)
                 pure $ toJpeg toJPImageY8 (toPixel8 . toPixelBaseModel) img

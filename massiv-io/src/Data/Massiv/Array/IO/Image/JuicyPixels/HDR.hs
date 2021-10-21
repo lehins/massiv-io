@@ -89,11 +89,13 @@ instance Readable HDR (Image S (SRGB 'NonLinear) Float) where
 -- | Decode a HDR Image
 decodeHDR :: (ColorModel cs e, MonadThrow m) => HDR -> B.ByteString -> m (Image S cs e)
 decodeHDR f bs = convertWith f (JP.decodeHDR bs)
+{-# INLINE decodeHDR #-}
 
 -- | Decode a HDR Image
 decodeWithMetadataHDR ::
      (ColorModel cs e, MonadThrow m) => HDR -> B.ByteString -> m (Image S cs e, JP.Metadatas)
 decodeWithMetadataHDR f bs = convertWithMetadata f (JP.decodeHDRWithMetadata bs)
+{-# INLINE decodeWithMetadataHDR #-}
 
 
 -- | Decode a HDR Image
@@ -103,6 +105,7 @@ decodeAutoHDR ::
   -> B.ByteString
   -> m (Image r cs e)
 decodeAutoHDR f bs = convertAutoWith f (JP.decodeHDR bs)
+{-# INLINE decodeAutoHDR #-}
 
 -- | Decode a HDR Image
 decodeAutoWithMetadataHDR ::
@@ -111,6 +114,7 @@ decodeAutoWithMetadataHDR ::
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataHDR f bs = convertAutoWithMetadata f (JP.decodeHDRWithMetadata bs)
+{-# INLINE decodeAutoWithMetadataHDR #-}
 
 instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto HDR) (Image r cs e) where
@@ -137,7 +141,10 @@ encodeAutoHDR ::
   -> HdrOptions
   -> Image r cs e
   -> BL.ByteString
-encodeAutoHDR _ opts = toHdr (toPixelBaseModel . toSRGBF)
+encodeAutoHDR _ opts  img=
+  case eqT :: Maybe (Image r cs e :~: Image S (SRGB 'NonLinear) Float) of
+    Just Refl -> getHdrEncoder opts $ toJPImageRGBF (toImageBaseModel img)
+    Nothing -> toHdr (toPixelBaseModel . toSRGBF) img
   where
     toSRGBF = convertPixel :: Pixel cs e -> Pixel (SRGB 'NonLinear) Float
     toHdr :: Source r a => (a -> Pixel CM.RGB Float) -> Array r Ix2 a -> BL.ByteString

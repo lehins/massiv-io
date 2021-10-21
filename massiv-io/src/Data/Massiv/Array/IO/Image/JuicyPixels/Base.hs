@@ -119,7 +119,7 @@ convertAutoWith ::
   -> Either String JP.DynamicImage
   -> m (Image r cs e)
 convertAutoWith _ = either (throwM . DecodeError) fromDynamicImageAuto
-
+{-# INLINE convertAutoWith #-}
 
 convertSequenceWith ::
      (MonadThrow m, ColorModel cs e, FileFormat (Sequence f))
@@ -289,39 +289,39 @@ fromDynamicImageAuto ::
 fromDynamicImageAuto jpDynImg =
   case jpDynImg of
     JP.ImageY8 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (Y D65) Word8))
+      convertImageM <$> (fromJPImageUnsafeM jimg :: m (Image S (Y D65) Word8))
     JP.ImageY16 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (Y D65) Word16))
+      convertImageM <$> (fromJPImageUnsafeM jimg :: m (Image S (Y D65) Word16))
     JP.ImageY32 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (Y D65) Word32))
+      convertImageM <$> (fromJPImageUnsafeM jimg :: m (Image S (Y D65) Word32))
     JP.ImageYF jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (Y D65) Float))
+      convertImageM <$> (fromJPImageUnsafeM jimg :: m (Image S (Y D65) Float))
     JP.ImageYA8 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (Alpha (Y D65)) Word8))
+      convertImageM <$> (fromJPImageUnsafeM jimg :: m (Image S (Alpha (Y D65)) Word8))
     JP.ImageYA16 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (Alpha (Y D65)) Word16))
+      convertImageM <$> (fromJPImageUnsafeM jimg :: m (Image S (Alpha (Y D65)) Word16))
     JP.ImageRGB8 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (SRGB 'NonLinear) Word8))
+      convertImageM <$> (fromJPImageUnsafeM jimg :: m (Image S (SRGB 'NonLinear) Word8))
     JP.ImageRGB16 jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (SRGB 'NonLinear) Word16))
+      convertImageM <$> (fromJPImageUnsafeM jimg :: m (Image S (SRGB 'NonLinear) Word16))
     JP.ImageRGBF jimg ->
-      compute . convertImage <$> (fromJPImageUnsafeM jimg :: m (Image S (SRGB 'NonLinear) Float))
+      convertImageM <$> (fromJPImageUnsafeM jimg :: m (Image S (SRGB 'NonLinear) Float))
     JP.ImageRGBA8 jimg ->
-      compute . convertImage <$>
+      convertImageM <$>
       (fromJPImageUnsafeM jimg :: m (Image S (Alpha (SRGB 'NonLinear)) Word8))
     JP.ImageRGBA16 jimg ->
-      compute . convertImage <$>
+      convertImageM <$>
       (fromJPImageUnsafeM jimg :: m (Image S (Alpha (SRGB 'NonLinear)) Word16))
     JP.ImageYCbCr8 jimg ->
-      compute . convertImage <$>
+      convertImageM <$>
       (fromJPImageUnsafeM jimg :: m (Image S (Y'CbCr SRGB) Word8))
     JP.ImageCMYK8 jimg ->
-      compute . convertImage <$>
+      convertImageM <$>
       (fromJPImageUnsafeM jimg :: m (Image S (CMYK (SRGB 'NonLinear)) Word8))
     JP.ImageCMYK16 jimg ->
-      compute . convertImage <$>
+      convertImageM <$>
       (fromJPImageUnsafeM jimg :: m (Image S (CMYK (SRGB 'NonLinear)) Word16))
-
+{-# INLINE fromDynamicImageAuto #-}
 
 
 showJP :: JP.DynamicImage -> String

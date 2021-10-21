@@ -31,6 +31,7 @@ module Data.Massiv.Array.IO.Base
   , Auto(..)
   , Image
   , convertImage
+  , convertImageM
   , toImageBaseModel
   , fromImageBaseModel
   , coerceBinaryImage
@@ -46,7 +47,7 @@ module Data.Massiv.Array.IO.Base
   , MonadThrow(..)
   ) where
 
-import Control.Exception (Exception, throw)
+import Control.Exception (Exception)
 import Control.Monad.Catch (MonadThrow(..))
 import qualified Data.ByteString as B (ByteString)
 import qualified Data.ByteString.Lazy as BL (ByteString)
@@ -55,6 +56,7 @@ import Data.Default.Class (Default(..))
 import qualified Data.Massiv.Array as A
 import Data.Typeable
 import qualified Data.Vector.Storable as V
+import GHC.Stack
 import Graphics.Pixel as CM
 import Graphics.Pixel.ColorSpace
 import Prelude as P
@@ -156,13 +158,13 @@ class FileFormat f => Readable f arr where
     arr <- decodeM f bs
     pure (arr, ())
 
--- | Encode an array into a `BL.ByteString`.
-encode' :: Writable f arr => f -> WriteOptions f -> arr -> BL.ByteString
-encode' f opts = either throw id . encodeM f opts
+-- | Encode an array into a lazy `BL.ByteString`.
+encode' :: (Writable f arr, HasCallStack) => f -> WriteOptions f -> arr -> BL.ByteString
+encode' f opts = A.throwEither . encodeM f opts
 
--- | Decode a `B.ByteString` into an Array.
-decode' :: Readable f arr => f -> B.ByteString -> arr
-decode' f = either throw id . decodeM f
+-- | Decode a strict `B.ByteString` into an Array.
+decode' :: (Readable f arr, HasCallStack) => f -> B.ByteString -> arr
+decode' f = A.throwEither . decodeM f
 
 
 -- | Arrays that can be written into a file.
@@ -274,6 +276,21 @@ convertImage ::
   => Image r' cs' e'
   -> Image A.D cs e
 convertImage = A.map convertPixel
+{-# INLINE convertImage #-}
+
+
+-- | Convert image to any supported color space and compute the resulting image
+--
+-- @since 1.0.1
+convertImageM ::
+     (ColorSpace cs' i' e', ColorSpace cs i e, A.Manifest r (Pixel cs e))
+  => Image A.S cs' e'
+  -> Image r cs e
+convertImageM = A.compute . A.map convertPixel
+{-# INLINE [1] convertImageM #-}
+{-# RULES
+ "convertImageM = id" convertImageM = id
+#-}
 
 -- | Cast an array. This is theoretically unsafe operation, but for all currently
 -- available `ColorSpace` instances this function is perfectly safe.

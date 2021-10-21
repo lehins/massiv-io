@@ -91,6 +91,7 @@ decodeNetpbmImage ::
   -> B.ByteString
   -> m (Image S cs e, Maybe B.ByteString)
 decodeNetpbmImage = decodePPM fromNetpbmImage
+{-# INLINE decodeNetpbmImage #-}
 
 -- | Try to decode a Netpbm image sequence
 --
@@ -101,6 +102,7 @@ decodeNetpbmImageSequence ::
   -> B.ByteString
   -> m ([Image S cs e], Maybe B.ByteString)
 decodeNetpbmImageSequence = decodePPMs fromNetpbmImage
+{-# INLINE decodeNetpbmImageSequence #-}
 
 -- | Try to decode a Netpbm image, while auto converting the colorspace.
 --
@@ -111,6 +113,7 @@ decodeAutoNetpbmImage ::
   -> B.ByteString
   -> m (Image r cs e, Maybe B.ByteString)
 decodeAutoNetpbmImage = decodePPM fromNetpbmImageAuto
+{-# INLINE decodeAutoNetpbmImage #-}
 
 -- | Try to decode a Netpbm image sequence, while auto converting the colorspace.
 --
@@ -121,6 +124,7 @@ decodeAutoNetpbmImageSequence ::
   -> B.ByteString
   -> m ([Image r cs e], Maybe B.ByteString)
 decodeAutoNetpbmImageSequence = decodePPMs fromNetpbmImageAuto
+{-# INLINE decodeAutoNetpbmImageSequence #-}
 
 decodePPMs :: (FileFormat f, Manifest r (Pixel cs e), ColorModel cs e, MonadThrow m) =>
               (Netpbm.PPM -> Maybe (Image r cs e))

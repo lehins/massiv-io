@@ -118,12 +118,13 @@ instance Readable BMP (Image S (Alpha (SRGB 'NonLinear)) Word8) where
 -- | Decode a Bitmap Image
 decodeBMP :: (ColorModel cs e, MonadThrow m) => BMP -> B.ByteString -> m (Image S cs e)
 decodeBMP f bs = convertWith f (JP.decodeBitmap bs)
+{-# INLINE decodeBMP #-}
 
 -- | Decode a Bitmap Image
 decodeWithMetadataBMP ::
      (ColorModel cs e, MonadThrow m) => BMP -> B.ByteString -> m (Image S cs e, JP.Metadatas)
 decodeWithMetadataBMP f bs = convertWithMetadata f (JP.decodeBitmapWithMetadata bs)
-
+{-# INLINE decodeWithMetadataBMP #-}
 
 -- | Decode a Bitmap Image
 decodeAutoBMP ::
@@ -132,6 +133,7 @@ decodeAutoBMP ::
   -> B.ByteString
   -> m (Image r cs e)
 decodeAutoBMP f bs = convertAutoWith f (JP.decodeBitmap bs)
+{-# INLINE decodeAutoBMP #-}
 
 -- | Decode a Bitmap Image
 decodeAutoWithMetadataBMP ::
@@ -140,6 +142,7 @@ decodeAutoWithMetadataBMP ::
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataBMP f bs = convertAutoWithMetadata f (JP.decodeBitmapWithMetadata bs)
+{-# INLINE decodeAutoWithMetadataBMP #-}
 
 instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
          Readable (Auto BMP) (Image r cs e) where
@@ -178,7 +181,20 @@ encodeAutoBMP ::
 encodeAutoBMP _ BitmapOptions {bitmapMetadata} img =
   fromMaybe (toBitmap toJPImageRGB8 toSRGB8 img) $
   msum
-    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
+    [ do Refl <- eqT :: Maybe (r :~: S)
+         case eqT :: Maybe (e :~: Word8) of
+           Just Refl
+             | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.X)) ->
+               pure $
+               JP.encodeBitmapWithMetadata bitmapMetadata $ toJPImageY8 (toImageBaseModel img)
+             | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.RGB)) ->
+               pure $
+               JP.encodeBitmapWithMetadata bitmapMetadata $ toJPImageRGB8 (toImageBaseModel img)
+             | Just Refl <- (eqT :: Maybe (BaseModel cs :~: Alpha CM.RGB)) ->
+               pure $
+               JP.encodeBitmapWithMetadata bitmapMetadata $ toJPImageRGBA8 (toImageBaseModel img)
+           _ -> Nothing
+    , do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Bit)
                 pure $ toBitmap toJPImageY8 (toPixel8 . toPixelBaseModel) img

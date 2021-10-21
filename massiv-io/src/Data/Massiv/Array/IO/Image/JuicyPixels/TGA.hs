@@ -109,12 +109,13 @@ instance Readable TGA (Image S (Alpha (SRGB 'NonLinear)) Word8) where
 -- | Decode a Tga Image
 decodeTGA :: (ColorModel cs e, MonadThrow m) => TGA -> B.ByteString -> m (Image S cs e)
 decodeTGA f bs = convertWith f (JP.decodeTga bs)
+{-# INLINE decodeTGA #-}
 
 -- | Decode a Tga Image
 decodeWithMetadataTGA ::
      (ColorModel cs e, MonadThrow m) => TGA -> B.ByteString -> m (Image S cs e, JP.Metadatas)
 decodeWithMetadataTGA f bs = convertWithMetadata f (JP.decodeTgaWithMetadata bs)
-
+{-# INLINE decodeWithMetadataTGA #-}
 
 -- | Decode a Tga Image
 decodeAutoTGA ::
@@ -123,6 +124,7 @@ decodeAutoTGA ::
   -> B.ByteString
   -> m (Image r cs e)
 decodeAutoTGA f bs = convertAutoWith f (JP.decodeTga bs)
+{-# INLINE decodeAutoTGA #-}
 
 -- | Decode a Tga Image
 decodeAutoWithMetadataTGA ::
@@ -131,6 +133,7 @@ decodeAutoWithMetadataTGA ::
   -> B.ByteString
   -> m (Image r cs e, JP.Metadatas)
 decodeAutoWithMetadataTGA f bs = convertAutoWithMetadata f (JP.decodeTgaWithMetadata bs)
+{-# INLINE decodeAutoWithMetadataTGA #-}
 
 
 instance (Manifest r (Pixel cs e), ColorSpace cs i e) =>
@@ -167,7 +170,17 @@ encodeAutoTGA ::
 encodeAutoTGA _ img =
   fromMaybe (toTga toJPImageRGB8 toSRGB8 img) $
   msum
-    [ do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
+    [ do Refl <- eqT :: Maybe (r :~: S)
+         case eqT :: Maybe (e :~: Word8) of
+           Just Refl
+             | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.X)) ->
+               pure $ JP.encodeTga $ toJPImageY8 (toImageBaseModel img)
+             | Just Refl <- (eqT :: Maybe (BaseModel cs :~: CM.RGB)) ->
+               pure $ JP.encodeTga $ toJPImageRGB8 (toImageBaseModel img)
+             | Just Refl <- (eqT :: Maybe (BaseModel cs :~: Alpha CM.RGB)) ->
+               pure $ JP.encodeTga $ toJPImageRGBA8 (toImageBaseModel img)
+           _ -> Nothing
+    , do Refl <- eqT :: Maybe (BaseModel cs :~: CM.X)
          msum
            [ do Refl <- eqT :: Maybe (e :~: Bit)
                 pure $ toTga toJPImageY8 (toPixel8 . toPixelBaseModel) img
