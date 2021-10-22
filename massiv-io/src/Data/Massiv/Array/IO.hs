@@ -228,6 +228,7 @@ readImageAuto path = liftIO (B.readFile path >>= decodeImageM imageReadAutoForma
 writeImage ::
      (Source r (Pixel cs e), ColorModel cs e, MonadIO m) => FilePath -> Image r cs e -> m ()
 writeImage path img = liftIO (encodeImageM imageWriteFormats path img >>= writeLazyAtomically path)
+{-# INLINE writeImage #-}
 
 
 -- | Write an image encoded in sRGB color space into a file while performing all necessary
@@ -249,6 +250,7 @@ writeImageAuto ::
   -> m ()
 writeImageAuto path img =
   liftIO (encodeImageM imageWriteAutoFormats path img >>= writeLazyAtomically path)
+{-# INLINE writeImageAuto #-}
 
 
 -- | An image is written as a @.tiff@ file into an operating system's temporary

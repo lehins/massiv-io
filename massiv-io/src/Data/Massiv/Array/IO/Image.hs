@@ -41,7 +41,6 @@ import Graphics.Pixel.ColorSpace
 import Prelude as P
 
 
-
 -- | Adhoc encoder
 data Encode out where
   -- | Provide a custom way to encode a particular file format. This is an alternative
@@ -67,12 +66,14 @@ instance FileFormat (Encode out) where
 -- @since 0.4.1
 encodeAdhocM :: MonadThrow m => Encode out -> out -> m BL.ByteString
 encodeAdhocM (Encode f enc) = enc f
+{-# INLINE encodeAdhocM #-}
 
 -- | Utilize a Writable instance in order to construct an adhoc Encode type
 --
 -- @since 0.4.1
 writableAdhoc :: Writable f out => f -> Encode out
 writableAdhoc f = Encode f (`encodeM` def)
+{-# INLINE writableAdhoc #-}
 
 
 -- | Encode an image into a lazy `BL.ByteString`, while selecting the appropriate format from the
@@ -89,6 +90,7 @@ encodeImageM
 encodeImageM formats path img = do
   f <- selectFileFormat formats path
   encodeAdhocM f img
+{-# INLINE encodeImageM #-}
 
 
 -- | List of image formats that can be encoded without any color space conversion.
@@ -102,6 +104,7 @@ imageWriteFormats =
   , Encode TGA (\ f -> encodeTGA f . computeSource @S)
   , Encode HDR (\ f -> encodeHDR f def . computeSource @S)
   ]
+{-# INLINEABLE imageWriteFormats #-}
 
 -- | List of image formats that can be encoded with any necessary color space conversions.
 imageWriteAutoFormats ::
@@ -116,6 +119,7 @@ imageWriteAutoFormats =
   , Encode (Auto HDR) (\f -> pure . encodeAutoHDR f def)
   , Encode (Auto TGA) (\f -> pure . encodeAutoTGA f)
   ]
+{-# INLINEABLE imageWriteAutoFormats #-}
 
 
 -- | Adhoc decoder
@@ -143,6 +147,7 @@ instance FileFormat (Decode (Image r cs e)) where
 -- @since 0.4.1
 decodeAdhocM :: MonadThrow m => Decode out -> B.ByteString -> m out
 decodeAdhocM (Decode f dec) = dec f
+{-# INLINE decodeAdhocM #-}
 
 
 -- | Utilize a Readable instance in order to construct an adhoc Decode type
@@ -150,6 +155,7 @@ decodeAdhocM (Decode f dec) = dec f
 -- @since 0.4.1
 readableAdhoc :: Readable f out => f -> Decode out
 readableAdhoc f = Decode f decodeM
+{-# INLINE readableAdhoc #-}
 
 
 -- | Decode an image from the strict `ByteString` while inferring format the image is encoded in
@@ -165,6 +171,7 @@ decodeImageM
 decodeImageM formats path bs = do
   f <- selectFileFormat formats path
   decodeAdhocM f bs
+{-# INLINE decodeImageM #-}
 
 -- | List of image formats decodable with no color space conversion
 imageReadFormats :: ColorModel cs e => [Decode (Image S cs e)]
@@ -180,6 +187,7 @@ imageReadFormats =
   , Decode PGM (\f -> fmap fst . decodeNetpbmImage f)
   , Decode PPM (\f -> fmap fst . decodeNetpbmImage f)
   ]
+{-# INLINEABLE imageReadFormats #-}
 
 -- | List of image formats decodable with automatic colorspace conversion
 imageReadAutoFormats
@@ -197,5 +205,4 @@ imageReadAutoFormats =
   , Decode (Auto PGM) (\f -> fmap fst . decodeAutoNetpbmImage f)
   , Decode (Auto PPM) (\f -> fmap fst . decodeAutoNetpbmImage f)
   ]
-
-
+{-# INLINEABLE imageReadAutoFormats #-}
