@@ -5,9 +5,9 @@ in order to easily read, write and convert images in various formats and color s
 
 ## Status
 
-| Language | Github Actions | Azure | Coveralls |Gitter.im |
-|:--------:|:--------------:|:-----:|:---------:|:--------:|
-| ![GitHub top language](https://img.shields.io/github/languages/top/lehins/massiv-io.svg) | [![Build Status](https://github.com/lehins/massiv/workflows/massiv-io-CI/badge.svg)](https://github.com/lehins/massiv-io/actions) | [![Build Status](https://dev.azure.com/kuleshevich/massiv-io/_apis/build/status/lehins.massiv-io?branchName=master)](https://dev.azure.com/kuleshevich/massiv-io/_build?definitionId=1&branchName=master) | [![Coverage Status](https://coveralls.io/repos/github/lehins/massiv-io/badge.svg?branch=master)](https://coveralls.io/github/lehins/massiv-io?branch=master) | [![Join the chat at https://gitter.im/haskell-massiv/Lobby](https://badges.gitter.im/haskell-massiv/Lobby.svg)](https://gitter.im/haskell-massiv/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+| Language | Github Actions | Coveralls |Gitter.im |
+|:--------:|:--------------:|:---------:|:--------:|
+| ![GitHub top language](https://img.shields.io/github/languages/top/lehins/massiv-io.svg) | [![Build Status](https://github.com/lehins/massiv/workflows/massiv-io-CI/badge.svg)](https://github.com/lehins/massiv-io/actions) | [![Coverage Status](https://coveralls.io/repos/github/lehins/massiv-io/badge.svg?branch=master)](https://coveralls.io/github/lehins/massiv-io?branch=master) | [![Join the chat at https://gitter.im/haskell-massiv/Lobby](https://badges.gitter.im/haskell-massiv/Lobby.svg)](https://gitter.im/haskell-massiv/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 |      Package       | Hackage | Nightly | LTS |
 |:-------------------|:-------:|:-------:|:---:|
