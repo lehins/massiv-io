@@ -1,3 +1,7 @@
+# 1.0.0
+
+* Update to support `massiv-1.0`
+
 # 0.4.1
 
 * Reexport `Default` class.
